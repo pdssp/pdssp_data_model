@@ -1,0 +1,157 @@
+# Configuration Asciidoctor pour STAC Planet / PDSSP / CNES
+# Auteur: Jean-Christophe Malapert
+# Date: 2026-01-15
+# Version: 1.2
+# stac-theme-html.yml - Thème web pour STAC Planet/PDSSP
+extends: default
+
+# =============================================
+# POLICES (Web Fonts - Utilise les polices système ou Google Fonts)
+# =============================================
+font:
+  catalog:
+    Noto Serif:
+      normal: 'Noto Serif, serif'
+      bold: 'Noto Serif, serif'
+      italic: 'Noto Serif, italic'
+      bold_italic: 'Noto Serif, italic'
+    M+ 1mn:
+      normal: '"M PLUS 1mn", monospace'
+      bold: '"M PLUS 1mn", monospace'
+    OpenSans:
+      normal: 'Open Sans, sans-serif'
+      bold: 'Open Sans, sans-serif'
+      italic: 'Open Sans, italic'
+
+# =============================================
+# COULEURS (Adaptées du thème PDF)
+# =============================================
+colors:
+  cnes-blue: '#004080'
+  cnes-green: '#009940'
+  cnes-red: '#CC0000'
+  cnes-yellow: '#FFD700'
+  light-gray: '#F8F9FA'
+  medium-gray: '#DEE2E6'
+
+# =============================================
+# MISE EN PAGE WEB
+# =============================================
+page:
+  layout: responsive  # Pour un rendu adaptatif
+  margin: [auto, auto, auto, auto]  # Marges automatiques pour le web
+
+# =============================================
+# EN-TÊTE WEB (Header)
+# =============================================
+header:
+  height: 80px
+  background_color: '{cnes-blue}'
+  border_color: '{medium-gray}'
+  border_width: 1
+  vertical_align: middle
+  recto_content:
+    left:
+      image: images/cnes-logo.png[width=120]
+    center:
+      content: '{document-title}'
+    right:
+      content: '<span style="color: white;">STAC Planet | PDSSP</span>'
+
+# =============================================
+# PIED DE PAGE WEB (Footer)
+# =============================================
+footer:
+  height: 40px
+  background_color: '{cnes-blue}'
+  font_color: white
+  font_size: 12
+  recto_content:
+    left:
+      content: '© CNES 2026 | Projet STAC Planet'
+    right:
+      content: 'Version: {revnumber} | {revdate}'
+
+# =============================================
+# TITRES (Headings) - Style web
+# =============================================
+heading:
+  h1:
+    font_color: '{cnes-blue}'
+    font_size: 28
+    margin_top: 24
+    margin_bottom: 16
+  h2:
+    font_color: '{cnes-green}'
+    font_size: 22
+    margin_top: 20
+    margin_bottom: 12
+  h3:
+    font_color: '{cnes-blue}'
+    font_size: 18
+    margin_top: 16
+    margin_bottom: 8
+
+# =============================================
+# LIENS
+# =============================================
+link:
+  font_color: '{cnes-blue}'
+  hover_color: '{cnes-green}'
+
+# =============================================
+# TABLEAUX
+# =============================================
+table:
+  background_color: white
+  border_color: '{medium-gray}'
+  border_width: 1
+  head:
+    background_color: '{cnes-blue}'
+    font_color: white
+  body:
+    stripe_background_color: '{light-gray}'
+
+# =============================================
+# BLOCS DE CODE
+# =============================================
+code:
+  font_family: '"M PLUS 1mn", monospace'
+  background_color: '#F8F9FA'
+  border_color: '{medium-gray}'
+  border_width: 1
+  border_radius: 4
+
+# =============================================
+# BLOCS D'AVERTISSEMENT (Admonitions)
+# =============================================
+admonition:
+  icon:
+    tip:
+      name: lightbulb
+      stroke_color: '{cnes-blue}'
+    note:
+      name: pencil-alt
+      stroke_color: '{cnes-blue}'
+    important:
+      name: exclamation-circle
+      stroke_color: '{cnes-red}'
+    caution:
+      name: fire
+      stroke_color: '{cnes-yellow}'
+    warning:
+      name: bomb
+      stroke_color: '{cnes-red}'
+  border_color: '{cnes-blue}'
+  border_width: 2
+
+# =============================================
+# BARRE LATÉRALE 
+# =============================================
+sidebar:
+  width: 250px
+  background_color: '{light-gray}'
+  border_color: '{medium-gray}'
+  title:
+    font_color: '{cnes-blue}'
+    font_size: 18

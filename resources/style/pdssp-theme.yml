@@ -1,0 +1,258 @@
+# Configuration Asciidoctor pour STAC Planet / PDSSP / CNES
+# Auteur: Jean-Christophe Malapert
+# Date: 2026-01-15
+# Version: 1.2
+
+extends: default
+
+# =============================================
+# POLICES (Font Catalog)
+# =============================================
+font:
+  catalog:
+    # Polices principales (disponibles dans l'environnement CNES)
+    Noto Serif:
+      normal: GEM_FONTS_DIR/notoserif-regular-subset.ttf
+      bold: GEM_FONTS_DIR/notoserif-bold-subset.ttf
+      italic: GEM_FONTS_DIR/notoserif-italic-subset.ttf
+      bold_italic: GEM_FONTS_DIR/notoserif-bold_italic-subset.ttf
+
+    M+ 1mn:  # Police mono-espace pour le code (recommandée CNES)
+      normal: GEM_FONTS_DIR/mplus1mn-regular-subset.ttf
+      bold: GEM_FONTS_DIR/mplus1mn-bold-subset.ttf
+      italic: GEM_FONTS_DIR/mplus1mn-italic-subset.ttf
+      bold_italic: GEM_FONTS_DIR/mplus1mn-bold_italic-subset.ttf
+
+    OpenSans:  # Police pour les éléments de code et interfaces
+      normal: OpenSans-Regular.ttf
+      italic: OpenSans-Italic.ttf
+      bold: OpenSans-Bold.ttf
+      bold_italic: OpenSans-BoldItalic.ttf
+
+# =============================================
+# STYLE DU CODE INLINE (codespan)
+# =============================================
+codespan:
+  font_color: B12146  # Couleur rouge CNES pour le code inline
+  font_family: M+ 1mn  # Utilisation de la police mono-espace
+
+# =============================================
+# MISE EN PAGE
+# =============================================
+page:
+  layout: portrait
+  size: A4
+  margin: [0.7in, 0.67in, 0.67in, 0.67in]  # [haut, droite, bas, gauche]
+
+# =============================================
+# PIED DE PAGE (Footer)
+# =============================================
+footer:
+  height: $base_line_height_length * 2
+  recto:
+    right:
+      content: '{docid} | {date} | {chapter-title} | *{page-number}* | *CNES/PDSSP - STAC Planet*'
+  verso:
+    left:
+      content: '*{page-number}* | {chapter-title} | {docid} | {date} | *CNES/PDSSP - STAC Planet*'
+  font_size: $base_font_size_small
+  font_color: 666666
+  line_height: 1.2
+
+# =============================================
+# EN-TÊTE (Header)
+# =============================================
+header:
+  height: $base_line_height_length * 3
+  border_color: dddddd
+  border_width: 0.25
+  recto:
+    left:
+      content: image:../../images/pdssp.png[width=120]
+    center:
+      content: '{document-title}'
+    right:
+      content: '*Confidentiel CNES* | Version: {revnumber}'
+  verso:
+    left:
+      content: image:../../images/pdssp.png[width=120]
+    center:
+      content: '{document-title}'
+    right:
+      content: '*Confidentiel CNES* | Version: {revnumber}'
+  font_size: $base_font_size
+  font_color: 004080  # Bleu CNES
+
+# =============================================
+# PAGE DE TITRE
+# =============================================
+title_page:
+  text_align: right
+  logo:
+    top: 10%
+    image: ../../images/cnes-logo.png
+  title:
+    top: 55%
+    font_size: $heading_h1_font_size
+    font_color: 004080  # Bleu CNES
+    line_height: 0.9
+  subtitle:
+    font_color: [0, 0.99, 1, 0]  # Vert CNES
+    font_size: $heading_h3_font_size
+    font_style: bold_italic
+    line_height: 1
+  authors:
+    margin_top: $base_font_size * 1.25
+    font_size: $base_font_size_large
+    font_color: 181818
+    content: "{author}"
+  revision:
+    margin_top: $base_font_size * 1.25
+    content: "Version: {revnumber} | Date: {revdate} | *Document Confidentiel CNES*"
+
+# =============================================
+# TITRES (Headings)
+# =============================================
+heading:
+  text_align: left
+  font_color: $base_font_color
+  font_style: bold
+  font_family: Noto Serif
+  h1_font_size: floor($base_font_size * 2.6)
+  h1_font_color: 004080  # Bleu CNES
+  h2_font_size: floor($base_font_size * 2.15)
+  h2_font_color: [0, 0.99, 1, 0]  # Vert CNES
+  h3_font_size: round($base_font_size * 1.7)
+  h3_font_color: 004080
+  h4_font_size: $base_font_size_large
+  h5_font_size: $base_font_size
+  h6_font_size: $base_font_size_small
+  line_height: 1.2
+  margin_top: $vertical_rhythm * 0.4
+  margin_bottom: $vertical_rhythm * 0.9
+  min_height_after: $base_line_height_length * 1.5
+
+# =============================================
+# TABLEAUX
+# =============================================
+table:
+  background_color: $page_background_color
+  border_color: DDDDDD
+  border_width: $base_border_width
+  grid_width: $base_border_width
+  cell_padding: 4
+  head:
+    font_style: bold
+    background_color: 004080  # Bleu CNES
+    font_color: FFFFFF
+    border_bottom_width: $base_border_width * 2.5
+  body:
+    stripe_background_color: F9F9F9
+  foot:
+    background_color: F0F0F0
+    font_style: italic
+
+# =============================================
+# EXEMPLES DE CODE (Examples)
+# =============================================
+example:
+  border_color: 004080  # Bleu CNES
+  border_radius: $base_border_radius
+  border_width: 0.75
+  background_color: F8F9FA
+  padding: [$vertical_rhythm, $horizontal_rhythm, $vertical_rhythm, $horizontal_rhythm]
+
+# =============================================
+# BLOC D'AVERTISSEMENT (Admonitions)
+# =============================================
+admonition:
+  padding: [$vertical_rhythm / 3.0, $horizontal_rhythm, $vertical_rhythm / 3.0, $horizontal_rhythm]
+  border_color: 004080  # Bleu CNES
+  border_width: 2
+  label:
+    text_transform: uppercase
+    font_style: bold
+    font_color: 004080
+  icon:
+    tip:
+      name: fas-lightbulb
+      stroke_color: "#004080"
+      size: 18
+    important:
+      name: fas-bell
+      stroke_color: "#CC0000"  # Rouge pour l'importance
+      size: 18
+    note:
+      name: fas-pen
+      stroke_color: "#004080"
+      size: 18
+    caution:
+      name: fas-fire
+      stroke_color: "#FF6600"  # Orange pour l'attention
+      size: 18
+    warning:
+      name: fas-bomb
+      stroke_color: "#CC0000"  # Rouge pour les avertissements
+      size: 18
+
+# =============================================
+# BLOCS DE CODE
+# =============================================
+code:
+  font_family: M+ 1mn  # Police mono-espace pour le code
+  font_color: $base_font_color
+  font_size: ceil($base_font_size * 0.9)
+  padding: $code_font_size
+  line_height: 1.25
+  line_gap: 3.8
+  background_color: F5F5F5
+  border_color: 004080  # Bleu CNES
+  border_radius: $base_border_radius
+  border_width: 0.75
+  prose:
+    margin_bottom: $block_margin_bottom
+
+# =============================================
+# LIENS
+# =============================================
+link:
+  font_color: 004080  # Bleu CNES
+
+# =============================================
+# LISTES
+# =============================================
+list:
+  marker_font_color: 004080  # Bleu CNES pour les puces
+
+# =============================================
+# NOTES DE BAS DE PAGE
+# =============================================
+footnote:
+  font_size: $base_font_size_small
+  font_color: 666666
+
+# =============================================
+# IMAGES
+# =============================================
+image:
+  align: center
+  border_color: DDDDDD
+  border_width: 0.5
+
+# =============================================
+# VARIABLES SUPPLÉMENTAIRES POUR CNES/PDSSP
+# =============================================
+cnes:
+  primary_color: 004080    # Bleu CNES
+  secondary_color: 009940  # Vert CNES
+  warning_color: CC0000    # Rouge avertissement
+  highlight_color: FFF200  # Jaune surlignage
+
+pdssp:
+  logo_path: ../../images/pdssp.png
+  project_name: STAC Planet
+  project_code: PDSSP-STAC-001
+
+stac:
+  version: 1.0.0
+  spec_url: https://github.com/radiantearth/stac-spec

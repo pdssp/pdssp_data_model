@@ -1,0 +1,15 @@
+== Objectives of the Document
+:doctype: book
+:lang: en
+
+The objectives of this document are as follows:
+
+* Define the data model of the Pole, structured as follows:
+ ** Directly import data compliant with NASA/indexterm:[ODE]<<acr-ode,ODE>>;
+ ** Export sets of metadata compatible with indexterm:[EPN-TAP]<<acr-epn-tap,EPN-TAP>>, DataCite/indexterm:[DOI]<<acr-doi,DOI>>, and Open Science principles.
+
+* Illustrate each reference model (NASA/<<acr-ode,ODE>>, <<acr-epn-tap,EPN-TAP>>, <<acr-doi,DOI>>, Open Science) and show how its concepts are projected onto the Pole’s model.
+
+* Compare the Pole’s model with the indexterm:[O&M]<<acr-om,O&M>> standard (Observations & Measurements — ISO 19156), in order to:
+ ** Provide an internationally recognized reference framework;
+ ** Facilitate future extensions and exchanges with other communities that already use <<acr-om,O&M>>.

@@ -1,0 +1,230 @@
+<style>
+#doc-search-box {
+  position: relative;
+  margin: 0.5em 1em 1em;
+}
+#doc-search-box input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.4em 0.6em;
+  font-size: 0.95em;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+}
+#doc-search-box input:focus {
+  outline: 2px solid #004080;
+  outline-offset: 0;
+}
+#doc-search-results {
+  display: none;
+  position: absolute;
+  z-index: 1000;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 60vh;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-top: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  border-radius: 0 0 4px 4px;
+}
+#doc-search-results.open { display: block; }
+#doc-search-results a {
+  display: block;
+  padding: 0.5em 0.7em;
+  text-decoration: none;
+  color: #212529;
+  border-bottom: 1px solid #f0f1f2;
+}
+#doc-search-results a:hover,
+#doc-search-results a.active {
+  background: #e6f0fa;
+}
+#doc-search-results .doc-search-title {
+  font-weight: 600;
+  color: #004080;
+}
+#doc-search-results .doc-search-snippet {
+  display: block;
+  font-size: 0.85em;
+  color: #666666;
+  margin-top: 0.15em;
+}
+#doc-search-results .doc-search-snippet mark {
+  background: #ffd700;
+  color: inherit;
+  font-weight: 600;
+}
+#doc-search-empty {
+  padding: 0.6em 0.7em;
+  color: #666666;
+  font-style: italic;
+}
+</style>
+<script>
+(function () {
+  "use strict";
+
+  function buildIndex() {
+    var content = document.getElementById("content") || document.body;
+    var headings = content.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id]");
+    var index = [];
+    headings.forEach(function (h) {
+      var container = h.parentElement || h;
+      var text = (container.textContent || "").replace(/\s+/g, " ").trim();
+      index.push({
+        id: h.id,
+        title: (h.textContent || "").replace(/\s+/g, " ").trim(),
+        text: text
+      });
+    });
+    return index;
+  }
+
+  function escapeRegExp(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  function snippetFor(text, query) {
+    var lower = text.toLowerCase();
+    var pos = lower.indexOf(query.toLowerCase());
+    if (pos === -1) return "";
+    var start = Math.max(0, pos - 40);
+    var end = Math.min(text.length, pos + query.length + 60);
+    var snippet = (start > 0 ? "…" : "") + text.slice(start, end) + (end < text.length ? "…" : "");
+    var re = new RegExp("(" + escapeRegExp(query) + ")", "ig");
+    return snippet.replace(re, "<mark>$1</mark>");
+  }
+
+  function search(index, query) {
+    var q = query.trim().toLowerCase();
+    if (q.length < 2) return [];
+    var terms = q.split(/\s+/).filter(Boolean);
+    var results = [];
+    index.forEach(function (entry) {
+      var titleLower = entry.title.toLowerCase();
+      var textLower = entry.text.toLowerCase();
+      var score = 0;
+      var matched = true;
+      terms.forEach(function (term) {
+        var titleHits = titleLower.split(term).length - 1;
+        var textHits = textLower.split(term).length - 1;
+        if (titleHits === 0 && textHits === 0) matched = false;
+        score += titleHits * 10 + textHits;
+      });
+      if (matched && score > 0) {
+        results.push({ entry: entry, score: score });
+      }
+    });
+    results.sort(function (a, b) { return b.score - a.score; });
+    return results.slice(0, 15).map(function (r) { return r.entry; });
+  }
+
+  function render(container, results, query) {
+    container.innerHTML = "";
+    if (!results.length) {
+      var empty = document.createElement("div");
+      empty.id = "doc-search-empty";
+      empty.textContent = "Aucun résultat pour « " + query + " »";
+      container.appendChild(empty);
+      container.classList.add("open");
+      return;
+    }
+    results.forEach(function (entry) {
+      var a = document.createElement("a");
+      a.href = "#" + entry.id;
+      var titleSpan = document.createElement("span");
+      titleSpan.className = "doc-search-title";
+      titleSpan.textContent = entry.title;
+      a.appendChild(titleSpan);
+      var snippet = snippetFor(entry.text, query.split(/\s+/)[0]);
+      if (snippet) {
+        var snippetSpan = document.createElement("span");
+        snippetSpan.className = "doc-search-snippet";
+        snippetSpan.innerHTML = snippet;
+        a.appendChild(snippetSpan);
+      }
+      a.addEventListener("click", function () {
+        container.classList.remove("open");
+      });
+      container.appendChild(a);
+    });
+    container.classList.add("open");
+  }
+
+  function init() {
+    var toc = document.getElementById("toc");
+    var host = document.createElement("div");
+    host.id = "doc-search-box";
+    host.innerHTML =
+      '<input type="text" id="doc-search-input" placeholder="Rechercher dans le document… (appui sur /)" autocomplete="off">' +
+      '<div id="doc-search-results"></div>';
+
+    if (toc) {
+      var title = document.getElementById("toctitle");
+      if (title && title.nextSibling) {
+        toc.insertBefore(host, title.nextSibling);
+      } else {
+        toc.insertBefore(host, toc.firstChild);
+      }
+    } else {
+      host.style.position = "fixed";
+      host.style.top = "1em";
+      host.style.right = "1em";
+      host.style.width = "320px";
+      host.style.background = "#fff";
+      host.style.padding = "0.5em";
+      host.style.borderRadius = "6px";
+      host.style.boxShadow = "0 2px 8px rgba(0,0,0,0.15)";
+      document.body.appendChild(host);
+    }
+
+    var index = buildIndex();
+    var input = document.getElementById("doc-search-input");
+    var results = document.getElementById("doc-search-results");
+
+    input.addEventListener("input", function () {
+      var query = input.value;
+      if (query.trim().length < 2) {
+        results.classList.remove("open");
+        results.innerHTML = "";
+        return;
+      }
+      render(results, search(index, query), query);
+    });
+
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        input.value = "";
+        results.classList.remove("open");
+        results.innerHTML = "";
+        input.blur();
+      }
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!host.contains(e.target)) {
+        results.classList.remove("open");
+      }
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "/" && document.activeElement !== input) {
+        var tag = (document.activeElement && document.activeElement.tagName) || "";
+        if (tag !== "INPUT" && tag !== "TEXTAREA") {
+          e.preventDefault();
+          input.focus();
+        }
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>

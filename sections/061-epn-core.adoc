@@ -1,0 +1,537 @@
+=== EPN Core
+
+==== EPNHost Class
+
+The EPNHost class implments the indexterm:[O&M]<<acr-om,O&M>> Host interface to include the EPN-specific attributes for describing the platform carrying the instrument.
+
+[[fig-epnhost-class-diagram]]
+.EPNHost Class Diagram
+[plantuml,epn-host-class-diagram]
+....
+@startuml
+
+interface Host
+
+class EPNHost
+
+class DataOrigin {
+  + instrument_host_name
+}
+
+class APISExtension {
+  + platesc [0..1]
+}
+
+Host <|.. EPNHost
+EPNHost -- DataOrigin
+EPNHost o-- APISExtension : 0..1
+
+@enduml
+....
+
+
+==== EPNObserver Class
+
+The EPNObserver class implements the <<acr-om,O&M>> Observer interface to include the EPN-specific attributes for describing the observer.
+
+[[fig-epnobserver-class-diagram]]
+.EPNObserver Class Diagram
+[plantuml,epn-observer-class-diagram]
+....
+@startuml
+
+interface Observer
+
+class EPNObserver
+
+class DataOrigin {
+  + instrument_name
+}
+
+class APISExtension {
+  + instrument_type[0..1]
+  + detector_name[0..1]
+  + opt_elem[0..1]
+}
+
+class ContributiveWorksExtension {
+  + observer_name [0..1]
+  + observer_id [0..1]
+  + observer_code [0..1]
+  + observer_institute [0..1]
+  + observer_country [0..1]
+  + observer_location [0..1]
+  + observer_lon [0..1]
+  + observer_lat [0..1]
+}
+
+class TargetConfigurationAndObservingGeometry {
+  + subobserver_longitude [0..1]
+  + subobserver_latitude [0..1]
+}
+
+class ExperimentalSpectroscopyExtension {
+  + producer_name [0..1]
+  + producer_institute [0..1]
+}
+
+Observer <|.. EPNObserver
+EPNObserver -- DataOrigin
+EPNObserver o-- APISExtension : 0..1
+EPNObserver o-- ContributiveWorksExtension : 0..1
+EPNObserver o-- ExperimentalSpectroscopyExtension : 0..1
+EPNObserver o-- TargetConfigurationAndObservingGeometry : 0..1
+@enduml
+....
+
+==== EPNObservingProcedure Class
+
+The EPNObservingProcedure class implments the <<acr-om,O&M>> ObservingProcedure interface to include the EPN-specific attributes for describing the observing procedure of the experiment.
+
+[[fig-epnobservingprocedure-class-diagram]]
+.EPNObservingProcedure Class Diagram
+[plantuml,epn-observing-procedure-diagram]
+....
+@startuml
+
+interface ObservingProcedure
+
+class EPNObservingProcedure
+
+class ExperimentalSpectroscopyExtension {
+  + sample_id [0..1]
+  + data_calibration_desc [0..1]
+  + setup_desc [0..1]
+  + measurement_atmosphere [0..1]
+  + temperature [0..1]
+  + pressure [0..1]
+  + sample_desc [0..1]  
+}
+
+class APISExtension {
+  + proposal_id [0..1]
+  + proposal_pi [0..1]
+  + proposal_title [0..1]
+  + proposal_target_name [0..1]
+  + proposal_target_description [0..1]
+  + campain [0..1]  
+  + target_secondary_hemisphere
+  + orientation
+}
+
+class ContributiveWorksExtension {
+  + original_publisher [0..1]
+}
+
+ObservingProcedure <|.. EPNObservingProcedure
+EPNObservingProcedure o-- APISExtension : 0..1
+EPNObservingProcedure o-- ExperimentalSpectroscopyExtension : 0..1
+EPNObservingProcedure o-- ContributiveWorksExtension : 0..1
+
+@enduml
+....
+
+==== EPNObservableProperty class
+
+The EPNObservableProperty class implements the <<acr-om,O&M>> ObservableProperty interface to include EPN-specific attributes for describing the measurable physical quantities and properties contained in the data.
+
+[[fig-epnobservableproperty-class-diagram]]
+.EPNObservableProperty Class Diagram
+[plantuml,epn-observable-property-class-diagram]
+....
+@startuml
+
+interface ObservableProperty
+
+class EPNObservableProperty
+
+class SupplementaryDescription {
+  + species
+  + messenger
+  + filter
+}
+
+class DataDescription {
+  + measurement_type [0..1]
+}
+
+class ParticleSpectroscopyExtension {
+  + particle_spectral_type [0..1]
+  + particle_spectral_range [0..1]
+  + particle_spectral_sampling_step [0..1]
+  + particle_spectral_resolution [0..1]
+}
+
+class ExperimentalSpectroscopyExtension {
+  + spectrum_type [0..1]
+  + sample_classification [0..1]
+  + species_inchikey [0..1]
+  + grain_size [0..1]
+  + geometry_type
+}
+
+enum GeometryType {
+  + direct
+  +...
+}
+
+class Axes {
+  C1_resol: [0..1]
+  C2_resol: [0..1]
+  C3_resol: [0..1]
+}
+
+ObservableProperty <|.. EPNObservableProperty
+ObservableProperty -- DataDescription
+ObservableProperty o-- SupplementaryDescription : 0..1
+ObservableProperty o-- ParticleSpectroscopyExtension : 0..1
+ObservableProperty o-- ExperimentalSpectroscopyExtension : 0..1
+ObservableProperty o-- Axes : 0..1
+ExperimentalSpectroscopyExtension -- GeometryType
+
+@enduml
+....
+
+==== EPNFeatureOfInterest class
+
+The EPNFeatureOfInterest class implements the <<acr-om,O&M>> FeatureOfInterest interface to include EPN-specific attributes, distinguishing between the ultimate target and the proximate (specific) region being observed, in accordance with the <<acr-om,O&M>> standard which defines both UltimateFeatureOfInterest and ProximateFeatureOfInterest concepts.
+
+[[fig-epnfeatureofinterest-class-diagram]]
+.EPNFeatureOfInterest Class Diagram
+[plantuml,epn-feature-of-interest-class-diagram]
+....
+@startuml
+skinparam landscape true
+skinparam dpi 300
+scale 2
+
+interface FeatureOfInterest
+interface EPNUltimateFeatureOfInterest
+interface EPNProximateFeatureOfInterest
+
+class EPNFeatureOfInterest
+
+class TargetDescription {
+  + target_name
+  + target_class 
+}
+
+enum TargetClass {
+  + asteroid
+  + dwarf_planet
+  + planet
+  + satellite
+  + comet
+  + calibration
+}
+
+class Axes {
+  + c1 [0..1]
+  + c2 [0..1]
+  + c3 [0..1]
+  + spatial_frame_type [0..1]
+  + incidence [0..1]
+  + emergence [0..1]
+  + phase [0..1]
+  + s_region [0..1]
+}
+
+enum SpatialFrameType {
+  + body
+  + cartesian
+  + spherical
+}
+
+class TargetConfigurationAndObservingGeometry {
+  + solar_longitude [0..1]
+  + target_distance [0..1]
+  + earth_distance [0..1]
+  + sun_distance [0..1]
+  + subsolar_longitude [0..1]
+  + subsolar_latitude [0..1]
+}
+
+class SupplementaryDescription {
+  + alt_target_name [0..1]
+  + feature_name [0..1]
+  + target_region [0..1]
+  + coverage [0..1]
+}
+
+class VerticalScalesOnPlanets {
+  + radial_distance [0..1]
+  + altitude_fromshape [0..1]
+}
+
+class SolarSystemObjectsExtension {
+  + mean_radius [0..1]
+  + equatorial_radius [0..1]
+  + polar_radius [0..1]
+  + diameter [0..1]
+  + mass [0..1]
+  + sideral_rotation_period [0..1]
+  + semi_major_axis [0..1]
+  + inclination [0..1]
+  + eccentricity [0..1]
+  + long_asc [0..1]
+  + arg_perihel [0..1]
+  + mean_anomaly [0..1]
+  + epoch [0..1]
+  + magnitude [0..1]
+  + flux [0..1]
+  + albedo [0..1]
+}
+
+class AsteroidDwarfPlanetCometObject {
+  + dynamic_class [0..1]
+  + dynamic_type [0..1]
+  + taxonomy_code [0..1]
+}
+
+enum DynamicClass {
+  + TNO
+  + MBA
+  + NEO
+  + OCC
+  + JFC
+  + Centaur
+  + Trojan
+}
+
+enum DynamicType {
+  + NEO
+  + TNO
+}
+
+class ExperimentalSpectrocopyExtension {
+  + azimuth [0..1]
+}
+
+class APISExtension {
+  + north_pole_position [0..]
+  + target_primary_hemisphere [0..1]
+  + target_secondary_hemisphere [0..1]
+  + target_apparent_radius [0..1]
+  + orientation [0..1]
+}
+
+class CoordinateFrameDescription {
+  + spatial_coordinate_description
+  + spatial_origin [0..1]
+}
+
+FeatureOfInterest <|.. EPNUltimateFeatureOfInterest
+FeatureOfInterest <|.. EPNProximateFeatureOfInterest
+EPNUltimateFeatureOfInterest <|.. EPNFeatureOfInterest
+EPNProximateFeatureOfInterest <|.. EPNFeatureOfInterest
+EPNFeatureOfInterest -- TargetDescription
+EPNFeatureOfInterest o-- Axes : 0..1
+EPNFeatureOfInterest o-- TargetConfigurationAndObservingGeometry : 0..1
+EPNFeatureOfInterest o-- SupplementaryDescription : 0..1
+EPNFeatureOfInterest o-- VerticalScalesOnPlanets : 0..1
+EPNFeatureOfInterest o-- SolarSystemObjectsExtension : 0..1
+EPNFeatureOfInterest o-- AsteroidDwarfPlanetCometObject : 0..1
+EPNFeatureOfInterest o-- ExperimentalSpectrocopyExtension : 0..1
+EPNFeatureOfInterest o-- APISExtension : 0..1
+TargetDescription -- TargetClass
+Axes -- SpatialFrameType
+AsteroidDwarfPlanetCometObject -- DynamicClass
+AsteroidDwarfPlanetCometObject -- DynamicType
+
+@enduml
+....
+
+===== EPNUltimateFeatureOfInterest and EPNProximateFeatureOfInterest Classes
+
+In the <<acr-om,O&M>> standard, FeatureOfInterest has two important specializations: UltimateFeatureOfInterest and ProximateFeatureOfInterest. The indexterm:[EPN-TAP]<<acr-epn-tap,EPN-TAP>> implementation follows this distinction:
+
+* **UltimateFeatureOfInterest**: Represents the primary/ultimate target of the observation (e.g., a planet, moon, or other celestial body).
+* **ProximateFeatureOfInterest**: Represents the specific region or point on/around the ultimate target that is being observed (e.g., a particular area on a planetary surface, atmospheric layer, or coordinate).
+
+
+==== EPNResult class
+
+The EPNResult class implements the <<acr-om,O&M>> Result interface to include EPN-specific attributes for describing the data products and their access information in the context of the <<acr-epn-tap,EPN-TAP>> protocol.
+
+[[fig-epnresult-class-diagram]]
+.EPNResult Class Diagram
+[plantuml,epn-result-class-diagram]
+....
+@startuml
+
+interface Result
+
+class EPNResult
+
+class DataAccessReference {
+  + access_url
+  + access_format
+  + access_estsize
+}
+
+class MiscellaneousFileMetadata {
+  + thumbnail_url [0..1]
+  + file_name [0..1]
+  + access_md5 [0..1]
+  + accref [0..1]
+  + datalink_url [0..1]
+}
+
+class MapsExtension {
+  + map_projection [0..1]
+  + map_height [0..1]
+  + map_width [0..1]
+  + pixelscale [0..1]
+  + map_scale [0..1]
+}
+
+class SupplementaryDecription {
+  + bib_reference [0..1]
+  + publisher [0..1]
+  + internal_reference [0..1]
+  + external_link[0..1]
+}
+
+class APISExtension {
+  + measurement_unit[0..1]
+  + acquisition_ID[0..1]
+}
+
+Result <|.. EPNResult
+EPNResult o-- DataAccessReference : 0..1
+EPNResult o-- MiscellaneousFileMetadata : 0..1
+EPNResult o-- MapsExtension : 0..1
+EPNResult o-- APISExtension : 0..1
+EPNResult o-- SupplementaryDecription : 0..1
+
+@enduml
+....
+
+==== EPNObservationType
+
+The EPNObservationType class implements AbstractObservationType to include EPN-specific attributes for describing observations within the <<acr-epn-tap,EPN-TAP>> framework.
+
+[[fig-epnobservationtype-class-diagram]]
+.EPNObservationType Class Diagram
+[plantuml,epn-observation-type-diagram]
+....
+@startuml
+
+interface AbstractObservationType
+
+class EPNObservationType {
+  + dataproduct_type
+  + processing_level
+}
+
+class SupplementaryDescription {
+  + processing_level_desc [0..1]
+}
+
+enum DataProductType {
+  + im (image)
+  + ma (map)
+  + sp (spectrum)
+  + ds (dynamic_spectrum)
+  + sc (spectral_cube)
+  + pr (profile)
+  + pf (photometric_function)
+  + vo (volume)
+  + mo (movie)
+  + cu (cube)
+  + ts (time_series)
+  + ca (catalogue)
+  + ci (catalogue_item)
+  + sv (spatial_vector)
+  + ev (event)
+}
+
+enum ProcessingType {
+  + Telemetry
+  + Raw
+  + Calibrated
+  + Derived
+  + Ancillary
+}
+
+AbstractObservationType <|.. EPNObservationType
+EPNObservationType o-- SupplementaryDescription : 0..1
+EPNObservationType -- DataProductType
+EPNObservationType -- ProcessingType
+
+@enduml
+....
+
+==== EPNObservation
+
+The EPNObservation class implements the <<acr-om,O&M>> AbstractObservation to include EPN-specific temporal attributes for describing observations within the <<acr-epn-tap,EPN-TAP>> framework.
+
+[[fig-epnobservation-class-diagram]]
+.EPNObservation Class Diagram
+[plantuml,abstract-observation-diagram]
+....
+@startuml
+
+interface AbstractObservation {
+  + phenomenonTime
+  + resultTime
+  + validTime [0..*]
+}
+
+class EPNObservation
+
+class Axes {
+  time [0..1]
+  time_exp [0..1]
+}
+
+class CoordinateFrameDescription {
+  + time_refposition [0..1]
+  + time_scale [0..1]
+}
+
+class TargetConfigurationAndObservingGeometry {
+  + local_time [0..1]
+  + target_time [0..1]
+}
+
+class GranuleReference {
+  + granule_uid
+  + obs_id
+}
+
+AbstractObservation <|.. EPNObservation
+EPNObservation o-- Axes : 0..1
+EPNObservation o-- CoordinateFrameDescription : 0..1
+EPNObservation o-- TargetConfigurationAndObservingGeometry : 0..1
+EPNObservation -- GranuleReference
+
+@enduml
+....
+
+==== EPnObservationCollection
+
+The EPNObservationCollection class implements the <<acr-om,O&M>> AbstractObservationCollection to include EPN-specific temporal attributes for describing collections within the <<acr-epn-tap,EPN-TAP>> framework.
+
+
+[[fig-epnobservationcollection-class-diagram]]
+.EPNObservationCollection Class Diagram
+[plantuml,abstract-observation-diagram]
+....
+@startuml
+
+abstract class AbstractObservationCollection
+
+class EPNObservationCollection
+
+class GranuleReference {
+    + granule_gid
+}
+
+AbstractObservationCollection <|.. EPNObservationCollection
+EPNObservationCollection o-- GranuleReference : 0..1
+
+
+@enduml
+....
+

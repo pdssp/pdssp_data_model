@@ -1,0 +1,47 @@
+== Acronyms
+
+This section lists, in alphabetical order, the acronyms used throughout this document. Each occurrence of an acronym in the text links back to its definition here.
+
+[cols="1,4", options="header"]
+|===
+|Acronym |Definition
+
+|[[acr-dali]]DALI |Data Access Layer Interface
+
+|[[acr-dem]]DEM |Digital Elevation Model
+
+|[[acr-doi]]DOI |Digital Object Identifier
+
+|[[acr-epn-tap]]EPN-TAP |Europlanet Table Access Protocol
+
+|[[acr-fair]]FAIR |Findable, Accessible, Interoperable, Reusable
+
+|[[acr-ihid]]IHID |Instrument Host Id
+
+|[[acr-iid]]IID |Instrument Id
+
+|[[acr-ivoa]]IVOA |International Virtual Observatory Alliance
+
+|[[acr-jd]]JD |Julian Days
+
+|[[acr-om]]O&M |Observations and Measurements
+
+|[[acr-ode]]ODE |Orbital Data Explorer
+
+|[[acr-ogc]]OGC |Open Geospatial Consortium
+
+|[[acr-oms]]OMS |Observations, Measurements, and Samples
+
+|[[acr-pds]]PDS |Planetary Data System
+
+|[[acr-pdssp]]PDSSP |Planetary Surfaces Data and Services Pole
+
+|[[acr-pt]]PT |Product Type
+
+|[[acr-stac]]STAC |SpatioTemporal Asset Catalog
+
+|[[acr-tap]]TAP |Table Access Protocol
+
+|[[acr-uws]]UWS |Universal Worker Service
+
+|===

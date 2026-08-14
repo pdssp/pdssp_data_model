@@ -1,0 +1,575 @@
+=== STAC
+
+This section details the mapping between the **indexterm:[O&M]<<acr-om,O&M>> (Observations & Measurements)** standard interfaces and the **indexterm:[STAC]<<acr-stac,STAC>> (SpatioTemporal Asset Catalog)** model classes.
+Each <<acr-stac,STAC>> class is presented as an extension of the <<acr-om,O&M>> interfaces, with <<acr-stac,STAC>>-specific attributes and associations tailored to <<acr-stac,STAC>>.
+
+
+==== ODEHost
+
+The **STACHost** class implements the **<<acr-om,O&M>> Host** interface to include indexterm:[ODE]<<acr-ode,ODE>>-specific attributes for describing the platform (e.g., spacecraft, observatory) carrying the instrument.
+
+[[fig-stachost-class-diagram]]
+.STACHost Class Diagram
+[plantuml,ode-host-class-diagram]
+....
+@startuml
+interface Host
+
+class STACHost
+
+class Item {
+  + assets : Map<string, Asset Object>[0..*]
+  + properties: Properties
+  + links: Link[0..*]
+}
+
+class Properties
+
+class StandardExtensions
+
+class NonStandardExtensions
+
+class CommonMetadata {
+  + platform : String[0..1]
+  + constellation : String[0..1]
+}
+
+class Asset {
+  + href : String
+  + title : String[0..1]
+  + description : String[0..1]
+  + type : String[0..1]
+  + roles : String[0..*]
+}
+
+class Link {
+  + href : String
+  + rel : String
+  + type : String[0..1]
+  + title : String[0..1]
+  + headers : Map<String, String | [String]>[0..1]
+  + body : Any[0..1]
+}
+
+Host <|.. STACHost
+STACHost -- Item
+Item -- Properties
+Properties <|-- CommonMetadata
+Properties -- StandardExtensions
+Properties -- NonStandardExtensions
+Item o-- Asset : 0..*
+Item o-- Link : 0..*
+
+@enduml
+....
+
+
+==== STACObserver
+
+The **STACObserver** class implements the **<<acr-om,O&M>> Observer** interface to describe the instrument or sensor used for observations, with <<acr-stac,STAC>>-specific attributes.
+
+[[fig-stacobserver-class-diagram]]
+.STACObserver Class Diagram
+[plantuml, stac-observing-class-diagram]
+....
+@startuml
+interface Observer
+
+class STACObserver
+
+class Item {
+  + geometry: Geometry[0..1] = null
+  + bbox : Bbox[0..1]
+  + assets : Map<string, Asset Object>[0..*]
+  + properties : Properties
+  + links: Link[0..*]
+  + bands: Band[0..*]
+}
+
+class GeoJsonGeometry
+
+class Geometry
+
+class Bbox
+
+class Properties
+
+class StandardExtensions
+
+class NonStandardExtensions
+
+class CommonMetadata {
+  + insstruments
+}
+
+class Asset {
+  + href : String
+  + title : String[0..1]
+  + description : String[0..1]
+  + type : String[0..1]
+  + roles : String[0..*]
+}
+
+class Link {
+  + href : String
+  + rel : String
+  + type : String[0..1]
+  + title : String[0..1]
+  + headers : Map<String, String | [String]>[0..1]
+  + body : Any[0..1]
+}
+
+class Band {
+  + name
+  + description
+}
+
+Observer <|.. STACObserver
+STACObserver -- Item
+Item -- Properties
+Properties <|-- CommonMetadata
+Properties -- StandardExtensions
+Properties -- NonStandardExtensions
+Item o-- Bbox : 0..1
+Item o-- Band : 0..*
+Item o-- Asset : 0..*
+Item o-- Link : 0..*
+Item -- Geometry
+GeoJsonGeometry <|.. Geometry
+@enduml
+....
+
+
+==== STACObservingProcedure
+
+The **STACObservingProcedure** implements the **<<acr-om,O&M>> ObservingProcedure** interface to include <<acr-stac,STAC>>-specific details about observation procedures, such as calibration parameters or product types.
+
+[[fig-stacobservingprocedure-class-diagram]]
+.STACObservingProcedure Class Diagram
+[plantuml,ode-observing-class-diagram]
+....
+@startuml STACObservingProcedure
+
+interface ObservingProcedure
+
+class STACObservingProcedure
+
+class Item {
+  + assets : Map<string, Asset Object>[0..*]
+  + properties : Properties
+  + links : Link[0..*]
+}
+
+class Properties
+
+class StandardExtensions
+
+class NonStandardExtensions
+
+class Asset {
+  + href : String
+  + title : String[0..1]
+  + description : String[0..1]
+  + type : String[0..1]
+  + roles : String[0..*]
+}
+
+class Link {
+  + href : String
+  + rel : String
+  + type : String[0..1]
+  + title : String[0..1]
+  + headers : Map<String, String | [String]>[0..1]
+  + body : Any[0..1]
+}
+
+ObservingProcedure <|.. STACObservingProcedure
+STACObservingProcedure -- Item
+Item -- Properties
+Properties -- StandardExtensions
+Properties -- NonStandardExtensions
+Item o-- Asset : 0..*
+Item o-- Link : 0..*
+@enduml
+....
+
+
+==== STACODEObservableProperty
+
+The **STACObservableProperty** class extends the **<<acr-om,O&M>> ObservableProperty** interface to describe the physical properties being measured, with <<acr-stac,STAC>>-specific attributes.
+
+[[fig-stacobservableproperty-class-diagram]]
+.STACObservableProperty Class Diagram
+[plantuml,stac-property-class-diagram]
+....
+@startuml
+interface ObservableProperty
+
+class STACObservableProperty
+
+class Item {
+  + properties : Properties
+}
+
+class Properties
+
+class StandardExtensions
+
+class Band {
+  + name
+}
+
+class NonStandardExtensions
+
+ObservableProperty <|.. STACObservableProperty
+STACObservableProperty -- Item
+Item -- Properties
+Properties o-- Band : 0..*
+Properties o-- StandardExtensions : 0..*
+Properties o-- NonStandardExtensions: 0..*
+@enduml
+....
+
+
+==== STACFeatureOfInterest
+
+The **STACFeatureOfInterest** class extends the **<<acr-om,O&M>> FeatureOfInterest** interface to distinguish between the ultimate target (e.g., Mars) and the proximate region being observed (e.g., a specific crater).
+
+[[fig-stacfeatureofinterest-class-diagram]]
+.STACFeatureOfInterest Class Diagram
+[plantuml,stac-foi-class-diagram]
+....
+@startuml
+interface FeatureOfInterest
+
+class ODEUltimateFeatureOfInterest
+
+class ODEProximateFeatureOfInterest
+
+class STACFeatureOfInterest
+
+class Item {
+  + geometry : Geometry[0..1] = null
+  + bbox : Bbox
+  + properties : Properties
+  + links : Link [0..*]
+  + assets : Map<string, Asset Object>[0..*]
+}
+
+class Bbox
+
+class GeoJsonGeometry
+
+class Geometry
+
+class Properties
+
+class StandardExtensions
+
+class NonStandardExtensions
+
+class CommonMetadata
+
+class Asset {
+  + href : String
+  + title : String[0..1]
+  + description : String[0..1]
+  + type : String[0..1]
+  + roles : String[0..*]
+}
+
+class Link {
+  + href : String
+  + rel : String
+  + type : String[0..1]
+  + title : String[0..1]
+  + headers : Map<String, String | [String]> [0..1]
+  + body : Any[0..1]
+}
+
+class Band {
+  + name: String
+  + description: String[0..1]
+}
+
+FeatureOfInterest <|.. STACFeatureOfInterest
+
+STACFeatureOfInterest <|-- ODEUltimateFeatureOfInterest
+STACFeatureOfInterest <|-- ODEProximateFeatureOfInterest
+
+STACFeatureOfInterest -- Item
+Item -- Properties
+Item o-- Asset : 0..*
+Item o-- Bbox : 0..1
+Item o-- Link : 1..*
+Properties <|-- CommonMetadata
+Properties -- StandardExtensions
+Properties -- NonStandardExtensions
+Properties o-- Band : 0..*
+Item -- Geometry
+GeoJsonGeometry <|-- Geometry
+@enduml
+....
+
+==== STACResult
+
+The **STACResult** class extends the **<<acr-om,O&M>> Result** interface to describe data products and their access metadata in <<acr-ode,ODE>>.
+
+[[fig-stacresult-class-diagram]]
+.STACResult Class Diagram
+[plantuml,stac-result-class-diagram]
+....
+@startuml
+interface Result
+
+class STACResult
+
+class Item {
+  + stac_extensions: STACExtension[0..*]
+  + links: Links[0..*]
+  + assets: Map<string, Asset Object>[0..*]
+  + properties: Properties
+}
+
+class STACExtension
+
+class Properties
+
+class StandardExtensions
+
+class NonStandardExtensions
+
+class CommonMetadata
+
+class Asset {
+  + href : String
+  + title : String[0..1]
+  + description : String[0..1]
+  + type : String[0..1]
+  + roles : String[0..*]
+}
+
+class Link {
+  + href : String
+  + rel : String
+  + type : String[0..1]
+  + title : String[0..1]
+  + headers : Map<String, String | [String]>[0..1]
+  + body : Any[0..1]
+}
+
+Result <|.. STACResult
+STACResult -- Item
+Item -- Properties
+Properties -- StandardExtensions
+Properties -- NonStandardExtensions
+Properties <|-- CommonMetadata
+Item o-- Asset : 0..*
+Item o-- Link : 0..*
+@enduml
+....
+
+
+==== STACObservation
+
+The **STACObservation** class extends **AbstractObservation** to include <<acr-ode,ODE>>-specific temporal and observational attributes.
+
+[[fig-stacobservation-class-diagram]]
+.STACObservation Class Diagram
+[plantuml,stac-observation-class-diagram]
+....
+@startuml ODEObservation
+interface AbstractObservation {
+  + phenomenonTime
+  + resultTime
+  + validTime [0..*]  
+}
+
+class STACObservation
+
+class Item {
+  + stac_version: String
+  + stac_extensions : STACExtension[0..*]
+  + id: String
+  + type : String
+  + collection: String[0..1]
+  + assets: Map<string, Asset Object>[0..*]
+  + properties: Properties
+  + links: Link[0..*]
+}
+
+class STACExtension
+
+class Properties
+
+class StandardExtensions
+
+class NonStandardExtensions
+
+class CommonMetadata {
+  + title: String[0..1]
+  + description: String[0..1]
+  + keywords: String [0..*]
+  + roles: String[0..*]
+  + datetime: String[0.1] = null
+  + created : String[0..1]
+  + updated : String[0..1]
+  + start_datetime : String[0..1]
+  + end_datetime: String[0..]
+  + license: String[0..1]
+  + mission: String[0..1]
+}
+
+class Asset {
+  + href : String
+  + title : String[0..1]
+  + description : String[0..1]
+  + type : String[0..1]
+  + roles : String[0..*]
+}
+
+class Link {
+  + href : String
+  + rel : String
+  + type : String[0..1]
+  + title : String[0..1]
+  + headers : Map<String, String | [String]>[0..1]
+  + body : Any[0..1]
+}
+
+AbstractObservation <|-- STACObservation
+STACObservation -- Item
+Item -- Properties
+Item o-- Asset : 0..*
+Properties <|-- CommonMetadata
+Properties -- StandardExtensions
+Properties -- NonStandardExtensions
+Item o-- STACExtension : 0..*
+Item o-- Link : 0..*
+
+@enduml
+....
+
+==== ODEObservationType
+
+The ODEObservationType class implements AbstractObservationType to include <<acr-ode,ODE>>-specific attributes for describing observations within the <<acr-ode,ODE>> framework.
+
+[[fig-stacobservationtype-class-diagram]]
+.STACObservationType Class Diagram
+[plantuml,stac-observation-type-diagram]
+....
+@startuml
+
+interface AbstractObservationType
+
+class STACObservationType
+
+class Item {
+  + stac_extension: STACExtension[0..*]
+  + properties: Properties
+}
+
+class Properties
+
+class StandardExtensions
+
+class NonStandardExtensions
+
+class STACExtension
+
+AbstractObservationType <|.. STACObservationType
+STACObservationType -- Item
+Item -- STACExtension
+Item -- Properties
+Properties -- StandardExtensions
+Properties -- NonStandardExtensions
+
+@enduml
+....
+
+==== STACObservationCollection
+
+The STACObservationCollection class implements the <<acr-om,O&M>> STACObservationCollection to include <<acr-stac,STAC>>-specific temporal attributes for describing collections within the <<acr-stac,STAC>> framework.
+
+
+[[fig-stacobservationcollection-class-diagram]]
+.STACObservationCollection Class Diagram
+[plantuml,stac-collection-diagram]
+....
+@startuml
+
+abstract class AbstractObservationCollection
+
+class STACObservationCollection
+
+class Collection {
+  + stac_version: String
+  + stac_extensions: STACExtension[0..*]
+  + type: String
+  + id: String
+  + title: String
+  + description: String
+  + keywords: String[0..*]
+  + license : String
+  + item_assets: Map<string, Item Asset Definition Object>[0..1]
+  + summaries: Map<string, [*]|Range Object|JSON Schema Object>[0..1]
+  + providers: Provider[0..*]
+  + links: Links[1..*]
+  + extent: Extent
+  + assets: Map<string, Asset Object>[0..*]
+}
+
+class STACExtension
+
+class Provider {
+   + name: String
+   + description: String[0..1]
+   + roles: String[0..*]
+   + url: String[0..1]
+}
+
+class Asset {
+  + href : String
+  + title : String[0..1]
+  + description : String[0..1]
+  + type : String[0..1]
+  + roles : String[0..*]
+}
+
+class Link {
+  + href : String
+  + rel : String
+  + type : String[0..1]
+  + title : String[0..1]
+  + headers : Map<String, String | [String]>[0..1]
+  + body : Any[0..1]
+}
+
+class Extent
+
+class SpatialExtent {
+  + bbox
+}
+
+class TemporalExtent {
+  + interval
+}
+
+class StandardExtensions
+
+class NonStandardExtensions
+
+AbstractObservationCollection <|-- STACObservationCollection
+STACObservationCollection -- Collection
+Collection o-- Provider : 0..*
+Collection o-- Link : 0..*
+Collection o-- Asset : 0..*
+Collection o-- STACExtension : 0..*
+Collection -- Extent
+Extent -- SpatialExtent
+Extent -- TemporalExtent
+Collection -- StandardExtensions
+Collection -- NonStandardExtensions
+
+@enduml
+....

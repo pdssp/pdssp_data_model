@@ -1,0 +1,441 @@
+== Mapping NASA ODE to STAC
+
+=== Metadata Mapping according O&M
+
+==== Host
+
+[cols="2,2,3", options="header"]
+|===
+|indexterm:[ODE]<<acr-ode,ODE>>  |indexterm:[PDSSP]<<acr-pdssp,PDSSP>> indexterm:[STAC]<<acr-stac,STAC>> | Notes
+
+| ihid
+| item.properties.platform
+|
+
+|===
+
+==== Observer
+
+[cols="2,2,3", options="header"]
+|===
+|<<acr-ode,ODE>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+
+
+| iid
+| items.properties.instruments
+|
+
+| ode_id
+| item.id
+|
+
+| Start_orbit_number
+| item.properties.sat:absolute_orbit
+|
+
+| Stop_orbit_number
+| N/A
+|
+
+| SpaceCraft_clock_start_count
+| item.properties.pdsode:SpaceCraft_clock_start_count
+|
+
+| SpaceCraft_clock_stop_count
+| item.properties.pdsode:SpaceCraft_clock_stop_count
+|
+
+|===
+
+=== ObservingProcedure
+
+[cols="2,2,3", options="header"]
+|===
+|<<acr-ode,ODE>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+
+| Activity_id
+| item.properties.pdsode:Activity_id
+|
+
+| Producer_id
+| item.properties.providers[0]name
+|
+
+|===
+
+==== ODEFeatureOfInterest
+
+[cols="2,2,3", options="header"]
+|===
+|<<acr-ode,ODE>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+
+| Target_name
+| item.properties.ssys:targets[0]
+|
+
+| Description
+| item.properties.description
+|
+
+| Emission_angle / Emission_angle_text
+| item.properties.view:off_nadir
+| Fallback order: Emission_angle → float(Emission_angle_text) → None.
+
+| Incidence_angle / Incidence_angle_text
+| item.properties.view:incidence_angle
+| Fallback order: Incidence_angle → float(Incidence_angle_text) → None.
+
+| Phase_angle / Phase_angle_text
+| item.properties.view:phase_angle
+| Fallback order: Phase_angle → Phase_angle_text → None.
+
+| Solar_distance
+| item.properties.pdssp:solar_distance
+| Solar_distance_text is not mapped
+
+| Solar_longitude
+| item.properties.pdssp:solar_longitude
+| Solar_longitude_text is not mapped
+
+| Predicted_dust_opacity / Predicted_dust_opacity_text
+| item.properties.pdsode:Predicted_dust_opacity
+| 
+
+| Easternmost_longitude / Easternmost_longitude_text / Westernmost_longitude / Westernmost_longitude_text / Maximimum_latitude / Maximimum_latitude_text / Minimum_latitude / Minimum_latitude_text
+| item.bbox
+|
+
+| Footprint_C0_geometry / Footprint_GL_geometry  
+| item.geometry
+| Fallback order: Footprint_C0_geometry → Footprint_GL_geometry → None  - Pole_state, Footprint_cross_meridian, Footprint_souce, Footprint_SP_geometry, Footprint_NP_geometry, Footprint_geometry, bbox
+
+| Center_georeferenced
+|
+| Not mapped
+
+| Center_latitude / Center_latitude_text
+| item.properties.proj:centroid.lat
+|
+
+| Center_longitude / Center_longitude_text
+| item.properties.proj:centroid.lon
+|
+
+| BB_georeferenced
+| 
+| Not mapped
+|===
+
+==== ODEResult
+
+[cols="2,2,3", options="header"]
+|===
+|<<acr-ode,ODE>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+
+| LabelFileName
+|
+| URL of the item {base}/LabelFilename or {base}/{relative_path}/LabelFilename
+
+| Product_Title
+| item.properties.title
+|
+
+| Product_version_id
+| item.properties.version
+| TBC with vesion
+
+| Label_product_type
+| item.properties.product:type
+| Fallback order: Label_product_type → pt.
+
+| PDSVolume_Id
+| item.properties.pdsode:PDSVolume_Id
+|
+
+| RelativePathtoVol
+| item.properties.pdsode:RelativePathtoVol
+|
+
+| Product_name
+| item.properties.pdsode:product_name
+|
+
+| label
+| item.properties.pdsode:label
+| 
+
+| USGS_Sites
+| item.properties.pdsode:USGS_Sites
+| 
+
+| PDS4LabelURL
+| item.assets['pds4_label']
+| AssetRoles.metadata is used
+
+| LabelURL
+| item.assets['label']
+| AssetRoles.metadata is used
+
+| FilesURL
+| items.links[rel="about"].href
+| title is "All files for this product" and type is html
+
+| ProductURL
+| items.links[rel="about"].href
+| title is "Product landing page" and type is html
+
+| External_url
+| items.links[rel="about"].href
+| title is "External reference" and type is html
+
+| External_url2
+| items.links[rel="about"].href
+| title is "External reference" and type is html
+
+| External_url3
+| items.links[rel="about"].href
+| title is "External reference" and type is html
+
+| Product_files
+| TBC
+| Loop on product file  
+
+| browse
+|
+| Not USED - image in base64
+
+| thumbnail
+|
+| Not USED - image in base64
+
+| Map_resolution
+| item.properties.pdsode:Map_resolution
+| 
+
+| Map_resolution_text
+|
+| item.properties.pdsode:Map_resolution_text
+
+| Map_scale
+| item.properties.pdsode:Map_scale
+| 
+
+| Map_scale_text
+| item.properties.pdsode:Map_scale_text
+| 
+
+| Comment
+| item.properties.pdsode:Comment
+| 
+
+| ODE_notes
+| item.properties.pdsode:ODE_notes
+| 
+
+| FileName
+| item.assets[Filename].title
+|
+
+| Type
+| item.assets[Filename].type_image
+| Used to detect mime and roles in asset for Filename
+
+| KBytes
+| items.assets[Filename].file:size
+| Value * 1024 to covnert in Bytes
+
+| URL
+| items.assets[Filename].href
+|
+
+| Description
+| items.assets[Filename].description
+|
+
+| Creation_date
+| items.asset[Filename].creation_date
+|
+|===
+
+==== Observation
+
+[cols="2,2,3", options="header"]
+|===
+|<<acr-ode,ODE>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+
+| Observation_id
+| item.properties.pdsode:Observation_id
+| 
+
+| Observation_number
+| item.properties.pdsode:Observation_number
+| 
+
+| UTC_start_time
+| item.properties.datetime and item.properties.start_datetime 
+| Fallback order: Observation_time → UTC_start_time → Product_creation_time → Product_release_date →  earlest(Creation_date) in files
+
+| UTC_stop_time
+| item.properties.end_datetime
+|
+
+| Observation_time
+| item.properties.datetime and item.properties.start_datetime 
+| Fallback order: Observation_time → UTC_start_time → Product_creation_time → Product_release_date →  earlest(Creation_date) in files
+
+
+| Product_creation_time
+| item.properties.datetime and item.properties.start_datetime and item.properties.created 
+| Fallback order for datetime : Observation_time → UTC_start_time → Product_creation_time → Product_release_date →  earlest(Creation_date) in files
+
+| Product_release_date
+| item.properties.datetime and item.properties.published
+| Fallback order for datetime : Observation_time → UTC_start_time → Product_creation_time → Product_release_date →  earlest(Creation_date) in files
+|===
+
+==== ObservationType
+
+[cols="2,2,3", options="header"]
+|===
+|<<acr-ode,ODE>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+
+| pt
+|
+| Used to classify item.properties.pdssp:processing_level and item.properties.pdssp:product_type 
+
+| Observation_Type
+| item.properties.product:type
+| Fallback order: Label_product_type → pt.
+|===
+
+==== ObservationCollection
+
+[cols="2,2,3", options="header"]
+|===
+|<<acr-ode,ODE>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+
+| ODEMetaDB
+| collection.keywords
+| value = target:<ODEMetaDB>
+
+| indexterm:[IHID]<<acr-ihid,IHID>>
+| collection.keywords and collection.summaries.platform.append()
+| value = platform:<<<acr-ihid,IHID>>>
+
+| IHName
+|
+| used in collection.title and collection.description
+
+| indexterm:[IID]<<acr-iid,IID>>
+| collection.keywords and collection.summaries.instruments.append()
+| value = instru:<<<acr-iid,IID>>> . Also used in collection.title and collection.description
+
+| IName
+| 
+| used in part of collection.title and used in part of collection.description
+
+| indexterm:[PT]<<acr-pt,PT>>
+| collection.summaries.product_name.append()
+|
+
+| PTName
+| collect.pds:product_name 
+| used in part of collection.title and used in part of collection.description
+
+| DataSetId
+| 
+| compute pdssp:product_type by classify f(DataSetId, pt)
+
+| ValidEmissionAngles
+| collection.keywords and collection.summaries['has_emission_angles'] = ["True", "False"]
+| with_emission is displayed in keywords if ValidEmissionAngles is True else without_emission
+
+| ValidPhaseAngles
+| collection.keywords and collection.summaries['with_phase'] = ["True", "False"]
+| with_phase is displayed in keywords if ValidPhaseAngles is True else without_phase
+
+| ValidIncidenceAngles
+| collection.keywords and collection.summaries['has_incidence_angles'] = ["True", "False"]
+| with_incidence is displayed in keywords if ValidIncidenceAngles is True else without_incidence
+
+| ValidSolLongs
+| collection.keywords and collection.summaries['has_solar_longitudes'] = ["True", "False"]
+| with_ls is displayed in keywords if ValidSolLongs is True else without_ls
+
+| ValidFootprints
+| collection.keywords and collection.summaries['has_footprints'] = ["True", "False"]
+| with_footprint is displayed in keywords if ValidFootprints is True else without_footprint
+
+| ValidObservationTimes
+| collection.summaries['has_observation_times'] = ["True", "False"]
+|
+
+| ValidTargets
+| collection.target
+|
+
+| NumberProducts
+| collection.pds:number_of_products"
+|
+
+| MinOrbit
+| collection.summaries["orbits"][0]
+|
+
+| MaxOrbit
+| collection.summaries["orbits"][1]
+|
+
+| MinObservationTime
+| collection.summaries["observationTime"][0]
+|
+
+| MaxObservationTime
+| collection.summaries["observationTime"][1]
+|
+
+| MinProductId
+| collection.summaries["productId"][0]
+|
+
+| MaxProductId
+| collection.summaries["productId"][1]
+|
+
+| NumberObservations
+| collection.pds:number_of_observations
+|
+
+| SpecialValue1
+| collection.pds:specialValue1
+|
+
+| MinSpecialValue1
+| collection.summaries["specialValue1"][0]
+|
+
+| MaxSpecialValue1
+| collection.summaries["specialValue1"][1]
+|
+
+| SpecialValue2
+| collection.pds:specialValue2
+|
+
+| MinSpecialValue2
+| collection.summaries["specialValue2"][0]
+|
+
+| MaxSpecialValue2
+| collection.summaries["specialValue2"][1]
+|
+
+|
+| product:type
+| Compute product:type based on several metadata
+
+|
+| processing:level
+| Compute processing:level based on several metadata
+|===
+

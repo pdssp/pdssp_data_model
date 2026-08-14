@@ -1,0 +1,73 @@
+== Reference Documents
+
+This section lists the normative documents, standards, and frameworks referenced throughout this document.
+
+=== OGC and ISO Standards
+
+[cols="1,3,2,4",options="header"]
+|===
+|Reference |Title |Version/Date |URL
+
+|ISO 19156:2011 |Geographic information – Observations and Measurements |2011 |https://www.iso.org/standard/32574.html
+
+|indexterm:[OGC]<<acr-ogc,OGC>> 07-022r1 |Observations and Measurements (indexterm:[O&M]<<acr-om,O&M>>) - XML Implementation |2.0 |https://docs.ogc.org/is/10-025r1/10-025r1.pdf
+
+|<<acr-ogc,OGC>> indexterm:[STAC]<<acr-stac,STAC>> |SpatioTemporal Asset Catalog |1.0 |https://www.ogc.org/standards/stac/
+
+|===
+
+=== NASA Models and Services
+
+[cols="1,3,2,4",options="header"]
+|===
+|Reference |Title |Version/Date |URL
+
+|NASA indexterm:[ODE]<<acr-ode,ODE>> |Orbital Data Explorer Data Model |N/A |https://ode.rsl.wustl.edu/
+
+|PDS4 |Planetary Data System Version 4 Standards |1.x |https://pds.nasa.gov/datastandards/
+
+|===
+
+=== IVOA Standards
+
+[cols="1,3,2,4",options="header"]
+|===
+|Reference |Title |Version/Date |URL
+
+|indexterm:[EPN-TAP]<<acr-epn-tap,EPN-TAP>> |Europlanet Table Access Protocol |1.1 |https://www.ivoa.net/documents/EPNTAP/20220822/
+
+|indexterm:[IVOA]<<acr-ivoa,IVOA>> indexterm:[TAP]<<acr-tap,TAP>> |Table Access Protocol |1.1 |http://www.ivoa.net/documents/TAP/
+
+|<<acr-ivoa,IVOA>> indexterm:[DALI]<<acr-dali,DALI>> |Data Access Layer Interface |1.1 |http://www.ivoa.net/documents/DALI/
+
+|<<acr-ivoa,IVOA>> indexterm:[UWS]<<acr-uws,UWS>> |Universal Worker Service |1.0 |http://www.ivoa.net/documents/UWS/
+
+|===
+
+=== Open Science and Identifiers
+
+[cols="1,3,2,4",options="header"]
+|===
+|Reference |Title |Version/Date |URL
+
+|indexterm:[FAIR]<<acr-fair,FAIR>> Principles |Findable, Accessible, Interoperable, Reusable |2016 |https://www.go-fair.org/fair-principles/
+
+|DataCite Schema |DataCite Metadata Schema |4.7 |https://schema.datacite.org/
+
+|indexterm:[DOI]<<acr-doi,DOI>> System |Digital Object Identifier System |N/A |https://www.doi.org/
+
+|Handle System |Handle System Specification |N/A |https://www.handle.net/
+
+|===
+
+=== Other References
+
+[cols="1,3,2,4",options="header"]
+|===
+|Reference |Title |Version/Date |URL
+
+|RFC 7946 |The GeoJSON Format |2016 |https://datatracker.ietf.org/doc/html/rfc7946
+
+|IAU 2009 |IAU/IAG Working Group on Cartographic Coordinates and Rotational Elements |2009 |https://www.iau.org/publications/themes/planetary-sciences/
+
+|===

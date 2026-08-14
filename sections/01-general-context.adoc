@@ -1,0 +1,53 @@
+== General Context
+:doctype: book
+:lang: en
+
+In the current landscape of planetary research, the interoperability of data sets is an unavoidable requirement. Spatial programs and the massive publication of data volumes via the indexterm:[ODE]<<acr-ode,ODE>> service are on the rise. On the other hand, European researchers and archive services use the indexterm:[EPN-TAP]<<acr-epn-tap,EPN-TAP>> model to describe and disseminate their data sets, while the indexterm:[DOI]<<acr-doi,DOI>> (Digital Object Identifier) ensures the permanence and citability of numerical resources.
+
+Finally, the Open Science movement requires that these data be indexterm:[FAIR]<<acr-fair,FAIR>> (Findable, Accessible, Interoperable, Reusable) in order to maximize their scientific and societal value.
+
+The Planetary Surfaces Data and Services Pole (indexterm:[PDSSP]<<acr-pdssp,PDSSP>>) must therefore be able to ingest the free products provided by NASA/<<acr-ode,ODE>>, transform them into a format compliant with <<acr-epn-tap,EPN-TAP>>, assign them a <<acr-doi,DOI>>, and make them fully reusable within the Open Science ecosystem. This dual constraint—accepting a very specific input format and producing a set of heterogeneous outputs—requires a central data model that serves as a pivot between the different standards.
+
+[[fig-pdssp-pivot-architecture]]
+.PDSSP Pivot Architecture
+[plantuml,pdssp-pivot-architecture]
+....
+@startuml
+left to right direction
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontSize 12
+skinparam ArrowColor #444444
+skinparam ArrowFontSize 11
+skinparam rectangle {
+  BorderColor #555555
+  BorderThickness 1.5
+}
+
+rectangle "**Sources**" as SOURCES #FFF3CD {
+  rectangle "NASA ODE\n(PDS3 / PDS4)" as ODE #FFEEBA
+  rectangle "PDSSP-Labo\n(local datasets)" as LABO #FFEEBA
+  rectangle "ESA / ESO\n(planned)" as ESA #FFF9C4
+}
+
+rectangle "**PDSSP — STACPlanet**\n—— pivot data model ——" as PIVOT #CCE5FF
+
+rectangle "**Outputs**" as OUTPUTS #D4EDDA {
+  rectangle "STAC API\n(discovery & access)" as STACAPI #C3E6CB
+  rectangle "EPN-TAP\n(IVOA / Europlanet)" as EPNTAP #C3E6CB
+  rectangle "DOI / DataCite\n(citation & FAIR IDs)" as DOI #C3E6CB
+}
+
+note bottom of PIVOT
+  O&M (ISO 19156) semantic backbone
+  FAIR-compliant — Open Science
+end note
+
+ODE --> PIVOT : harvest
+LABO --> PIVOT : ingest
+ESA ..> PIVOT : planned
+PIVOT --> STACAPI : serve
+PIVOT --> EPNTAP : export
+PIVOT --> DOI : register
+@enduml
+....
+

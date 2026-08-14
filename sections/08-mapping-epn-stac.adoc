@@ -1,0 +1,569 @@
+== Mapping STAC to EPN-TAP
+
+=== Metadata Mapping according O&M
+
+==== Observation
+
+[cols="2,2,3", options="header"]
+|===
+|indexterm:[EPN-TAP]<<acr-epn-tap,EPN-TAP>>  |indexterm:[PDSSP]<<acr-pdssp,PDSSP>> indexterm:[STAC]<<acr-stac,STAC>> | Notes
+
+| time_min 
+| item.properties.start_datetime 
+| The time parameters in <<acr-epn-tap,EPN-TAP>> are always provided in UTC and formatted in Julian Days (expressed in double precision). EPNCore uses standard indexterm:[JD]<<acr-jd,JD>> to avoid ambiguity with time origin. start_datetime in <<acr-stac,STAC>> uses UTC time. If datetime is not null, time_min must be set to datetime 
+
+| time_max 
+| item.properties.end_datetime 
+| The time parameters in <<acr-epn-tap,EPN-TAP>> are always provided in UTC and formatted in Julian Days (expressed in double precision). EPNCore uses standard <<acr-jd,JD>> to avoid ambiguity with time origin. start_datetime in <<acr-stac,STAC>> uses UTC time.
+
+| time_exp_min 
+|
+| compute end_datetime-start_datetime, expressed as seconds
+
+| time_exp_max 
+|
+|
+
+| time_refposition
+| item.properties.ssys:targets
+| First element of ssys:targets
+
+| time_scale
+|
+| Set time_scale = UTC
+
+| local_time_min
+| item.properties.ssys:local_time
+| Must be converted
+
+| local_time_max
+|
+|
+
+| target_time_min
+| item.properties.start_datetime
+| UTC time expressed as TIMESTAMP
+
+| target_time_max
+| item.properties.end_datetime
+| UTC time expressed as TIMESTAMP
+
+| obs_id
+| item.id
+|
+
+| granule_uid
+|
+| Convert granule_uid = id#md5(asset.href)
+
+| granule_gid
+|
+|
+|===
+
+==== AbstractObservationType
+
+[cols="2,2,3", options="header"]
+|===
+|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+
+| dataproduct_type
+| item.properties.product:type
+|
+
+| processing_level
+| item.properties.processing:level
+| mapping with enums (<<acr-epn-tap,EPN-TAP>> uses an acronym where <<acr-pdssp,PDSSP>> uses the name)
+|===
+
+=== Observer
+
+[cols="2,2,3", options="header"]
+|===
+|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+
+|instrument_name
+|item.properties.instruments
+|
+
+| instrument_type
+|
+|
+
+| detector_name
+|
+|
+
+| opt_elem
+|
+|
+
+| observer_id
+| 
+|
+
+| observer_code
+| 
+|
+
+| observer_institute
+|
+|
+
+| observer_country
+|
+|
+
+| observer_location
+|
+|
+
+| observer_lon
+|
+|
+
+| observer_lat
+|
+|
+
+| subobserver_longitude
+|
+|
+
+| subobserver_latitude
+|
+|
+
+| producer_name
+| collection.provider.name
+|
+
+| producer_institute
+| collection.provider.name
+|
+|===
+
+=== ObservableProperty
+
+[cols="2,2,3", options="header"]
+|===
+|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+
+| species 
+|
+|
+
+| messenger
+|
+|
+
+| filter
+| item.properties.bands[0].name
+|
+
+| measurement_type
+| item.properties.pdssp:measurement_type TODO
+|
+
+| particle_spectral_type
+|
+|
+
+| particle_spectral_range
+|
+|
+
+| particle_spectral_sampling_step
+|
+|
+
+| particle_spectral_resolution
+|
+|
+
+| spectrum_type
+|
+|
+
+| sample_classification
+|
+|
+
+| species_inchikey
+|
+|
+
+| grain_size
+|
+|
+
+| geometry_type
+|
+|
+
+| C1_resol
+| item.properties.gsd
+|
+
+| C2_resol
+| item.properties.gsd
+|
+
+| C3_resol
+|
+|
+|===
+
+
+=== FeatureOfInterest
+
+[cols="2,2,3", options="header"]
+|===
+|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+
+| target_name
+| item.properties.ssys:targets[0]
+|
+
+| target_class
+| item.properties.target_class
+|
+
+| c1
+| 
+| centroid of item.geometry.coordinates
+
+| c2
+| 
+| centroid of item.geometry.coordinates
+
+| c3
+|
+|
+
+| spatial_frame_type
+|
+| spatial_frame_type = body
+
+| incidence
+| item.properties.view:incidence_angle
+|
+
+| emergence
+| TODO off_nadir ?
+|
+
+| phase
+| item.properties.view:phase_angle
+|
+
+| s_region
+|
+| convert item.geometry.coordinates
+
+| solar_longitude
+|
+|
+
+| target_distance
+|
+|
+
+| earth_distance
+|
+|
+
+| sun_distance
+| item.properties.pdssp:solar_distance
+|
+
+| subsolar_longitude
+|
+|
+
+| subsolar_latitude
+|
+|
+
+| alt_target_name
+|
+|
+
+| feature_name
+|
+| Inverted name resolver on coordinates
+
+| target_region
+| 
+| lowercase(item.properties.ssys:targets[0]) - comes from https://www.ivoa.net/rdf/uat/2026-01-02/uat.html
+
+| coverage
+|
+| convert item.assets[name="moc-healpix"].url as string
+
+
+| radial_distance
+| 
+| computes from pos(planetocentric) to (planeotgraphic)
+
+| altitude_fromshape
+|
+| computes from the DTM
+
+| mean_radius
+|
+| 
+
+| equatorial_radius
+|
+| 
+
+| polar_radius
+|
+| 
+
+| diameter
+|
+|
+
+| mass
+|
+| 
+
+| sideral_rotation_period
+|
+|
+
+| semi_major_axis
+|
+|
+
+| inclination
+|
+|
+
+| eccentricity
+|
+|
+
+| long_asc
+|
+|
+
+| arg_perihel
+| 
+|
+
+| mean_anomaly
+|
+|
+
+| epoch
+|
+|
+
+| magnitude
+|
+|
+
+| flux
+|
+|
+
+| albedo
+|
+|
+
+| dynamic_class
+| 
+|
+
+| dynamic_type
+|
+|
+
+| taxonomy_code
+|
+|
+
+| azimuth
+|
+|
+
+| north_pole_position
+|
+|
+
+| target_primary_hemisphere
+|
+|
+
+| target_secondary_hemisphere
+|
+|
+
+| target_apparent_radius
+|
+|
+
+| orientation
+|
+|
+
+| spatial_origin
+|
+| spatial_origin = Geocenter, item.properties.ssys:targets[0]
+
+| Spatial_coordinate_description
+|
+| IAU CRS name (see CRS Registry)
+
+|===
+
+=== ObservingProcedure
+
+[cols="2,2,3", options="header"]
+|===
+|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+
+| sample_id
+|
+|
+
+| data_calibration_desc
+|
+|
+
+| setup_desc
+|
+|
+
+| measurement_atmosphere
+|
+|
+
+| temperature
+|
+|
+
+| pressure
+|
+|
+
+| sample_desc
+|
+|
+
+| proposal_id
+|
+|
+
+| proposal_pi
+|
+|
+
+| proposal_title
+|
+|
+
+| proposal_target_name
+|
+|
+
+| proposal_target_description
+|
+|
+
+| campain
+|
+|
+
+| target_secondary_hemisphere
+|
+|
+
+| orientation
+|
+|
+
+| original_publisher
+|
+|
+
+|===
+
+=== Result
+
+[cols="2,2,3", options="header"]
+|===
+|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+
+| access_url
+| item.assets[name][role=data].href
+|
+
+| access_format
+| item.assets[name][role=data].type
+|
+
+| access_estsize
+|
+|
+
+| thumbnail_url
+| item.assets[name][role=thumbnail].href
+|
+
+| file_name
+| item.assets[name][role=data].title
+|
+
+| access_md5
+| item.assets[name].file:checksum
+|
+
+
+| datalink_url
+|
+|
+
+| map_projection
+| 
+|
+
+| map_height
+| 
+|
+
+| map_width
+| 
+|
+
+| pixelscale
+| pdssp:map_resolution
+| 
+
+| map_scale
+| pdssp:map_scale
+| 
+
+| bib_reference
+| item.properties.sci:doi
+|
+
+| publisher
+| collection.providers[role=host].name
+|
+
+| internal_reference
+|
+|
+
+| external_link
+| item.assets[role=metadata].href
+|
+|===
+
+=== Collection
+
+N/A

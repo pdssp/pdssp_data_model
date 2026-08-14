@@ -1,0 +1,332 @@
+=== NASA ODE
+
+This section details the mapping between the **indexterm:[O&M]<<acr-om,O&M>> (Observations & Measurements)** standard interfaces and the **NASA indexterm:[ODE]<<acr-ode,ODE>> (Orbital Data Explorer)** model classes.
+Each <<acr-ode,ODE>> class is presented as an extension of the <<acr-om,O&M>> interfaces, with <<acr-ode,ODE>>-specific attributes and associations tailored to NASA's planetary data context.
+
+
+==== ODEHost
+
+The **ODEHost** class implements the **<<acr-om,O&M>> Host** interface to include <<acr-ode,ODE>>-specific attributes for describing the platform (e.g., spacecraft, observatory) carrying the instrument.
+
+[[fig-odehost-class-diagram]]
+.ODEHost Class Diagram
+[plantuml,ode-host-class-diagram]
+....
+@startuml
+interface Host
+
+class ODEHost
+
+class PdsRecordModel {
+  + ihid: String
+}
+
+Host <|.. ODEHost
+ODEHost -- PdsRecordModel
+@enduml
+....
+
+
+==== ODEObserver
+
+The **ODEObserver** class implements the **<<acr-om,O&M>> Observer** interface to describe the instrument or sensor used for observations, with <<acr-ode,ODE>>-specific attributes.
+
+[[fig-odeobserver-class-diagram]]
+.ODEObserver Class Diagram
+[plantuml]
+....
+@startuml
+interface Observer
+
+class ODEObserver
+
+class PdsRecordModel {
+  + iid
+  + pdsid
+  + ode_id
+  + Start_orbit_number [0..1]
+  + Stop_orbit_number [0..1]
+  + SpaceCraft_clock_start_count [0..1]
+  + SpaceCraft_clock_stop_count [0..1]
+}
+
+Observer <|.. ODEObserver
+ODEObserver -- PdsRecordModel
+@enduml
+....
+
+
+==== ODEObservingProcedure
+
+The **ODEObservingProcedure** implements the **<<acr-om,O&M>> ObservingProcedure** interface to include <<acr-ode,ODE>>-specific details about observation procedures, such as calibration parameters or product types.
+
+[[fig-odeobservingprocedure-class-diagram]]
+.ODEObservingProcedure Class Diagram
+[plantuml,ode-observing-class-diagram]
+....
+@startuml ODEObservingProcedure
+interface  ObservingProcedure
+
+class ODEObservingProcedure
+
+class PdsRecordModel {
+  + Activity_id [0..1]
+  + Producer_id [0..1]
+}
+
+ObservingProcedure <|.. ODEObservingProcedure
+ODEObservingProcedure -- PdsRecordModel
+@enduml
+....
+
+
+==== ODEObservableProperty
+
+The **ODEObservableProperty** class extends the **<<acr-om,O&M>> ObservableProperty** interface to describe the physical properties being measured, with <<acr-ode,ODE>>-specific attributes.
+
+[[fig-odeobservableproperty-class-diagram]]
+.ODEObservableProperty Class Diagram
+[plantuml,ode-property-class-diagram]
+....
+@startuml
+interface ObservableProperty
+
+class ODEObservableProperty
+class PdsRecordModel {
+}
+
+ObservableProperty <|.. ODEObservableProperty
+ODEObservableProperty -- PdsRecordModel
+@enduml
+....
+
+
+==== ODEFeatureOfInterest
+
+The **ODEFeatureOfInterest** class extends the **<<acr-om,O&M>> FeatureOfInterest** interface to distinguish between the ultimate target (e.g., Mars) and the proximate region being observed (e.g., a specific crater).
+
+[[fig-odefeatureofinterest-class-diagram]]
+.ODEFeatureOfInterest Class Diagram
+[plantuml,ode-foi-class-diagram]
+....
+@startuml
+interface FeatureOfInterest
+
+class ODEUltimateFeatureOfInterest
+
+class ODEProximateFeatureOfInterest
+
+class PdsRecordModel {
+  + Target_name
+  + Description [0..1]
+  + Emission_angle [0..1]
+  + Emission_angle_text [0..1]
+  + Phase_angle [0..1]
+  + Phase_angle_text [0..1]
+  + Incidence_angle [0..1]
+  + Incidence_angle_text [0..1]
+  + Solar_distance [0..1]
+  + Solar_distance_text [0..1]
+  + Solar_longitude [0..1]
+  + Predicted_dust_opacity [0..1]
+  + Predicted_dust_opacity_text [0..1]
+  + Easternmost_longitude [0..1]
+  + Easternmost_longitude_text [0..1]
+  + Westernmost_longitude [0..1]
+  + Westernmost_longitude_text [0..1]
+  + Maximimum_latitude [0..1]
+  + Maximimum_latitude_text [0..1]
+  + Minimum_latitude [0..1]
+  + Minimum_latitude_text [0..1]
+  + Footprint_geometry [0..1]
+  + Footprint_C0_geometry [0..1]
+  + Footprint_GL_geometry [0..1]
+  + Footprint_NP_Geometry [0..1]
+  + Footprint_SP_Geometry [0..1]
+  + Footprint_souce [0..1]
+  + Footprint_cross_meridian [0..1]
+  + Pole_state [0..1]
+  + Center_georeferenced [0..1]
+  + Center_latitude [0..1]
+  + Center_longitude [0..1]
+  + Center_latitude_text [0..1]
+  + Center_longitude_text [0..1]
+  + BB_georeferenced [0..1]
+}
+
+FeatureOfInterest <|.. ODEUltimateFeatureOfInterest
+FeatureOfInterest <|.. ODEProximateFeatureOfInterest
+ODEUltimateFeatureOfInterest -- PdsRecordModel
+ODEProximateFeatureOfInterest -- PdsRecordModel
+
+@enduml
+....
+
+==== ODEResult
+
+The **ODEResult** class extends the **<<acr-om,O&M>> Result** interface to describe data products and their access metadata in <<acr-ode,ODE>>.
+
+[[fig-oderesult-class-diagram]]
+.ODEResult Class Diagram
+[plantuml,ode-result-class-diagram]
+....
+@startuml
+interface Result
+
+class ODEResult
+
+class PdsRecordModel {
+  + LabelFileName
+  + Product_Title [0..1]
+  + Product_version_id [0..1]
+  + Label_product_type [0..1]
+  + PDSVolume_Id [0..1]
+  + RelativePathtoVol [0..1]
+  + Product_name [0..1]
+  + label [0..1]
+  + USGS_Sites [0..*]
+  + PDS4LabelURL [0..1]
+  + LabelURL [0..1]
+  + FilesURL [0..1]
+  + ProductURL [0..1]
+  + External_url [0..1]
+  + External_url2 [0..1]
+  + External_url3 [0..1]
+  + Product_files [0..*]
+  + browse [0..1]
+  + thumbnail [0..1]
+  + Map_resolution [0..1]
+  + Map_resolution_text [0..1]
+  + Map_scale [0..1]
+  + Map_scale_text [0..1]
+  + Comment [0..1]
+  + ODE_notes [0..1]
+}
+
+class ProductFile {
+  + FileName
+  + Type [0..1]
+  + KBytes [0..1]
+  + URL [0..1]
+  + Description [0..1]
+  + Creation_date [0..1]
+}
+
+Result <|.. ODEResult
+ODEResult -- PdsRecordModel
+PdsRecordModel o-- ProductFile : 0..1
+@enduml
+....
+
+
+==== ODEObservation
+
+The **ODEObservation** class extends **AbstractObservation** to include <<acr-ode,ODE>>-specific temporal and observational attributes.
+
+[[fig-odeobservation-class-diagram]]
+.ODEObservation Class Diagram
+[plantuml,ode-observation-class-diagram]
+....
+@startuml ODEObservation
+interface AbstractObservation {
+  + phenomenonTime
+  + resultTime
+  + validTime [0..*]  
+}
+
+class ODEObservation
+
+class PdsRecordModel {
+  + Observation_id [0..1]
+  + Observation_number [0..1]
+  + UTC_start_time [0..1]
+  + UTC_stop_time [0..1]
+  + Observation_time [0..1]
+  + Product_creation_time [0..1]
+  + Product_release_date [0..1]
+}
+
+AbstractObservation <|.. ODEObservation
+ODEObservation -- PdsRecordModel
+@enduml
+....
+
+==== ODEObservationType
+
+The ODEObservationType class implements AbstractObservationType to include <<acr-ode,ODE>>-specific attributes for describing observations within the <<acr-ode,ODE>> framework.
+
+[[fig-odeobservationtype-class-diagram]]
+.ODEObservationType Class Diagram
+[plantuml,ode-observation-type-diagram]
+....
+@startuml
+
+interface AbstractObservationType
+
+class ODEObservationType
+class PdsRecordModel {
+  + pt
+  + Observation_Type [0..1]
+}
+AbstractObservationType <|-- ODEObservationType
+ODEObservationType -- PdsRecordModel
+@enduml
+....
+
+==== ODEObservationCollection
+
+The ODEObservationCollection class implements the <<acr-om,O&M>> ODEObservationCollection to include EPN-specific temporal attributes for describing collections within the <<acr-ode,ODE>> framework.
+
+
+[[fig-odeobservationcollection-class-diagram]]
+.ODEObservationCollection Class Diagram
+[plantuml,abstract-observation-diagram]
+....
+@startuml
+
+abstract class AbstractObservationCollection
+
+class ODEObservationCollection
+
+class PdsRecordModel {
+    + Data_Set_Id
+}
+
+class IIPTSetModel {
+  + ODEMetaDB: String
+  + IHID: String
+  + IHName: String
+  + IID: String
+  + IName: String
+  + PT: String
+  + PTName: String
+  + DataSetId: String
+  + ValidEmissionAngles: bool
+  + ValidPhaseAngles: bool
+  + ValidIncidenceAngles: bool
+  + ValidSolLongs: bool
+  + ValidFootprints: bool
+  + ValidObservationTimes: bool
+  + ValidTargets: bool
+  + NumberProducts: int[0..1]
+  + MinOrbit: int[0..1]
+  + MaxOrbit: int[0..1]
+  + MinObservationTime: String[0..1]
+  + MaxObservationTime: String[0..1]
+  + MinProductId: String[0..1]
+  + MaxProductId: String[0..1]
+  + NumberObservations: int[0..1]
+  + SpecialValue1: float[0..1]
+  + MinSpecialValue1: float[0..1]
+  + MaxSpecialValue1: float[0..1]
+  + SpecialValue2: float[0..1]
+  + MinSpecialValue2: float[0..1]
+  + MaxSpecialValue2: float[0..1]
+}
+
+AbstractObservationCollection <|.. ODEObservationCollection
+ODEObservationCollection -- PdsRecordModel
+ODEObservationCollection -- IIPTSetModel
+
+@enduml
+....

@@ -1,0 +1,623 @@
+== The PDSSP Data Model
+
+This chapter defines the data model of the Pole itself — the convergence point of the reference models studied so far. It is deliberately built on indexterm:[STAC]<<acr-stac,STAC>> so that it stays *generic* and *standard-compatible*, while adding a thin, declarative layer that makes it *extensible* and *strictly controllable*: the requiredness of fields, the set of allowed values, the supported objects, and the accepted files can all be configured per use case without ever modifying the <<acr-stac,STAC>> core.
+
+=== Why STAC as the Pivot
+
+Among the models studied in this document, none of the others is fit to serve as the *single upstream source of truth*:
+
+* *<<acr-om,O&M>>* is a conceptual standard — a set of abstract interfaces (Observation, FeatureOfInterest, Observer…) with no single interchange serialization of its own. It is the right *semantic anchor* (Chapter 4) but not an implementable pivot format.
+* *<<acr-epn-tap,EPN-TAP>>* is a single flat table of granules (Section 6.1): sufficient for a queryable export, too thin to preserve everything captured from an indexterm:[ODE]<<acr-ode,ODE>> record without loss.
+* *indexterm:[DOI]<<acr-doi,DOI>>/DataCite* metadata is, by design, a *projection* of fields already held elsewhere (Section 6.3) — it consumes the pivot, it cannot be the pivot.
+* *<<acr-ode,ODE>>*'s own model is NASA-specific (Section 6.2) and not an open, community-governed catalog format.
+
+<<acr-stac,STAC>> is the only candidate that combines four properties simultaneously:
+
+. *Neutral, generic backbone.* Catalog / Collection / Item / Asset / Link carries no domain bias toward any single input standard, so ingesting <<acr-ode,ODE>> today and ESA/ESO data tomorrow doesn't require re-modeling the core.
+. *A first-class extension mechanism.* `stac_extensions` + versioned JSON Schema is *designed* to let a community add vocabulary (`ssys`, `proj`, `pdssp:`…) without forking the spec — exactly the layered schema/profile separation described below in Design Principles. None of the other candidates has an equivalent, client-enforceable mechanism.
+. *An existing ecosystem.* <<acr-stac,STAC>> is adopted by NASA, USGS, Microsoft, ESRI, and Google (Section 6.5); any standard <<acr-stac,STAC>> client (STAC Browser, pystac, stac-fastapi) can read the Pole's catalog for free, rather than the Pole building bespoke tooling.
+. *Same standards lineage as O&M, with fewer constraints.* <<acr-stac,STAC>> is an OGC community standard built on GeoJSON (RFC 7946), which permits `geometry: null` — so non-georeferenced products (documents, tables, not-yet-located products) remain first-class citizens, unlike purely geospatial formats.
+
+Consequently, <<acr-epn-tap,EPN-TAP>> and <<acr-doi,DOI>>/DataCite are treated as *export targets* (downstream projections), while <<acr-stac,STAC>> — enriched by the `pdssp:`/`pdsode:` extensions and the <<acr-pdssp,PDSSP>> Profile — is the *pivot* that holds the complete record.
+
+=== Design Principles
+
+The model is organized in four superimposed layers, from the most generic and stable to the most specific and configurable:
+
+. *<<acr-stac,STAC>> core (generic backbone).* The Catalog / Collection / Item / Asset / Link structure is used unchanged. It is never specialized, which guarantees that any standard <<acr-stac,STAC>> client can read the Pole's data. Following RFC 7946, the Item `geometry` may be `null`, so non-georeferenced resources (documents, tables, not-yet-located products) remain first-class.
+. *Standard extensions (shared vocabulary).* A curated set of community <<acr-stac,STAC>> extensions provides the domain vocabulary, as established in Chapters 7 and 8 (`ssys`, `view`, `proj`, `processing`, `product`, `sat`, `file`, `sci`, `datacube`, `eo`, `timestamps`…). Reusing published extensions is what keeps the model interoperable rather than proprietary.
+. *The `pdssp` extension (custom keywords).* Planetary concepts that no published extension covers (e.g. `pdssp:phase_angle`, `pdssp:solar_longitude`, `pdssp:measurement_type`) live in a single namespaced extension owned by the Pole, with its own JSON Schema. This is the controlled place to add custom keywords without polluting the core.
+. *The indexterm:[PDSSP]<<acr-pdssp,PDSSP>> Profile (configurable validation layer).* A profile, published as a custom <<acr-stac,STAC>> extension JSON Schema and declared in each Item's `stac_extensions`, expresses the *rules*: which fields are required, which values are allowed, which objects are supported, and which files are accepted. Because it is a declared extension, it is enforced wherever the Item is validated — including client-side in <<acr-stac,STAC>> Browser. It carries no data — only constraints — so it can be tightened or relaxed per system without touching the data model.
+
+NOTE: The separation between layers 1–3 (the *schema*: what *can* be described) and layer 4 (the *profile*: what *must* be true here) is the key design decision. It is what allows the global schema to stay generic while each deployment remains strictly controllable.
+
+[[fig-the-four-layers-of-the-pdssp-data-model]]
+.The Four Layers of the PDSSP Data Model
+[plantuml,pdssp-layer-stack]
+....
+@startuml
+top to bottom direction
+skinparam backgroundColor #FEFEFE
+skinparam defaultFontSize 13
+skinparam defaultTextAlignment center
+skinparam rectangle {
+  BorderColor #555555
+  BorderThickness 2
+}
+
+rectangle "**Layer 4 — PDSSP Profile**  //configurable per deployment//\nrequiredness rules  ·  value constraints  ·  object restrictions  ·  file validation" as L4 #FFD700
+
+rectangle "**Layer 3 — ''pdssp:'' and ''pdsode:'' extensions**  //custom namespaces//\npdssp:solar_longitude  ·  pdssp:solar_distance  ·  pdssp:map_resolution  ·  pdsode:Observation_id  ·  …" as L3 #90EE90
+
+rectangle "**Layer 2 — Standard STAC extensions**  //shared vocabulary//\nssys  ·  view  ·  proj  ·  processing  ·  product  ·  sat  ·  file  ·  sci  ·  eo  ·  timestamps  ·  …" as L2 #87CEEB
+
+rectangle "**Layer 1 — STAC core**  //generic backbone, never modified//\nCatalog  ·  Collection  ·  Item  ·  Asset  ·  Link" as L1 #D3D3D3
+
+L4 -[hidden]-> L3
+L3 -[hidden]-> L2
+L2 -[hidden]-> L1
+@enduml
+....
+
+=== Architecture
+
+The following UML diagram shows the <<acr-stac,STAC>> backbone, the extension bindings, and the configurable constraint layer that validates Items and Assets.
+
+[[fig-pdssp-architecture-stac-core-extensions-and-profile-constraints]]
+.PDSSP Architecture: STAC Core, Extensions, and Profile Constraints
+[plantuml,pdssp-model-diagram]
+....
+@startuml
+
+package "STAC core (generic, unchanged)" {
+  class Catalog {
+    + id
+    + stac_version
+    + stac_extensions
+  }
+  class Collection {
+    + id
+    + extent
+    + summaries
+    + item_assets
+    + license
+  }
+  class Item {
+    + id
+    + geometry [0..1]
+    + bbox [0..1]
+    + properties
+    + stac_extensions
+  }
+  class Asset {
+    + href
+    + type
+    + roles
+  }
+  class Link {
+    + rel
+    + href
+  }
+}
+
+package "Vocabulary" {
+  class StandardExtension {
+    + schemaUri
+    + prefix
+  }
+  class PdsspExtension {
+    + schemaUri
+    + prefix = "pdssp"
+  }
+}
+
+package "PDSSP Profile (configurable, additive)" {
+  class PDSSPProfile {
+    + id
+    + title
+    + stac_version
+    + conformsTo
+  }
+  class ExtensionBinding {
+    + schemaUri
+    + requirement {required|recommended|optional}
+  }
+  abstract class ConstraintRule {
+    + targetField
+  }
+  class RequirednessRule {
+    + requirement {required|optional}
+    + condition [0..1]
+  }
+  class ValueConstraint {
+    + allowedValues [0..*]
+    + pattern [0..1]
+    + minimum [0..1]
+    + maximum [0..1]
+  }
+  class ObjectRestriction {
+    + allowedObjects [1..*]
+  }
+  class FileValidationRule {
+    + assetRole
+    + allowedMediaTypes [1..*]
+    + allowedFileExtensions [1..*]
+    + checksumRequired
+  }
+}
+
+Catalog "1" o-- "*" Catalog
+Catalog "1" o-- "*" Collection
+Collection "1" o-- "*" Item
+Item "1" *-- "*" Asset
+Item "1" -- "*" Link
+Collection "1" -- "0..1" PDSSPProfile
+
+PDSSPProfile "1" *-- "*" ExtensionBinding
+PDSSPProfile "1" *-- "*" ConstraintRule
+ConstraintRule <|-- RequirednessRule
+ConstraintRule <|-- ValueConstraint
+ConstraintRule <|-- ObjectRestriction
+ConstraintRule <|-- FileValidationRule
+
+ExtensionBinding ..> StandardExtension
+ExtensionBinding ..> PdsspExtension
+PDSSPProfile ..> Item : validates
+PDSSPProfile ..> Collection : validates
+FileValidationRule ..> Asset : validates
+
+@enduml
+....
+
+=== PDSSP Data Model (Class Diagram)
+
+The following UML diagram shows the concrete <<acr-pdssp,PDSSP>> data model: how the <<acr-pdssp,PDSSP>> Profile adds planetary metadata to <<acr-stac,STAC>> Items and Collections through 5 mandatory extensions, with enumerated values.
+
+[[fig-pdssp-data-model-class-diagram]]
+.PDSSP Data Model Class Diagram
+[plantuml,pdssp-data-model-classes]
+....
+@startuml
+
+skinparam monochrome false
+skinparam shadowing false
+skinparam defaultFontSize 14
+left to right direction
+
+package "STAC Core" {
+  class Item {
+    + id
+    + geometry
+    + properties
+  }
+  
+  class Collection {
+    + id
+    + extent
+    + summaries
+  }
+  
+  class Asset {
+    + href
+    + type
+    + roles
+  }
+  
+  Item "1" *-- "*" Asset : contains
+}
+
+package "PDSSP Profile" #LightBlue {
+  class PDSSPProfile {
+    + id
+    + title
+    + stac_version
+    + conformsTo
+  }
+}
+
+package "Mandatory Extensions" #LightGreen {
+  class SSYSExtension {
+    + targets: SolarSystemTarget[1..*]
+    + target_class: TargetClass
+  }
+  
+  class ProductExtension {
+    + type: ProductType
+  }
+  
+  class ProcessingExtension {
+    + level: ProcessingLevel
+  }
+  
+  class VersionExtension {
+    + version: String
+  }
+  
+  class PDSSPExtension {
+    + solar_longitude: Number [0..1]
+    + solar_distance: Number [0..1]
+    + measurement_type: String [0..1]
+    + map_resolution: Number [0..1]
+    + map_scale: Number [0..1]
+  }
+}
+
+enum TargetClass {
+  planet
+  satellite
+  moon
+}
+
+enum SolarSystemTarget {
+  Mercury
+  Venus
+  Mars
+  Moon
+  Titan
+}
+
+enum ProductType {
+  Cube
+  Spectrum
+  Spectral Cube
+  Image
+  Map
+  Volume
+  Time Series
+  Dynamic Spectrum
+  Catalog
+  Spatial Vector
+}
+
+enum ProcessingLevel {
+  Ancillary
+  Raw
+  Calibrated
+  Derived
+}
+
+' ===== Package-level relationships =====
+PDSSPProfile ..> "Mandatory Extensions" : requires all
+PDSSPProfile ..> "STAC Core" : adds metadata to
+"STAC Core" ..> "Mandatory Extensions" : uses
+
+' ===== Explanations =====
+note top of PDSSPProfile
+  <b>PDSSP PROFILE</b>
+  =================
+  • Adds planetary metadata to Items and Collections
+  • Requires 5 mandatory extensions
+  • Values are enumerated (controlled list)
+  \n  <b>Result:</b> Consistent, validated planetary data
+end note
+
+note left of SSYSExtension
+  <b>5 MANDATORY EXTENSIONS</b>
+  ========================
+  \n  1. <b>Solar System:</b>
+     targets → Mercury, Venus, Mars, Moon...
+     target_class → planet, satellite, moon
+  \n  2. <b>Product:</b>
+     type → Image, Spectrum, Cube, Map...
+  \n  3. <b>Processing:</b>
+     level → Ancillary, Raw, Calibrated, Derived
+  \n  4. <b>Version:</b>
+     version → String identifier
+  \n  5. <b>PDSSP:</b>
+     solar_longitude, solar_distance,
+     measurement_type, map_resolution, map_scale
+end note
+
+note right of Item
+  <b>STAC OBJECTS</b>
+  ==============
+  Item = Individual data product
+  Collection = Group of Items
+  Asset = File associated with Item
+end note
+
+legend bottom left
+<b>Key Message:</b>
+PDSSP Profile <b>enhances</b> STAC with planetary metadata
+and <b>enforces</b> standard values across all data
+endlegend
+
+@enduml
+....
+
+=== Extensibility and Strict Control
+
+All controllability is expressed through the <<acr-pdssp,PDSSP>> Profile, so the four capabilities requested by the Pole map onto four rule types.
+
+==== File validation by media type and extension
+
+`FileValidationRule` constrains Assets by `roles`: it lists the `allowedMediaTypes` (the Asset `type`) and `allowedFileExtensions` (the file-name suffix of `href`), and can require a checksum (`file:checksum`). When the rule is expressed in the declared <<acr-pdssp,PDSSP>> schema, any Asset whose media type is not in the allowed list is flagged by <<acr-stac,STAC>> Browser at validation time.
+
+==== Configurable requiredness (turning `required` into a rule)
+
+Instead of a static `required` array baked into a schema, requiredness is expressed by `RequirednessRule`. Each rule targets a field, sets it `required` or `optional`, and may carry a `condition`. This makes `required` *data-driven*: for example, `cube:dimensions` becomes required only when `product:type = sp`. The profile compiler translates these rules into JSON Schema `required` arrays and `if/then` blocks.
+
+==== Restricting allowed values
+
+`ValueConstraint` restricts a field to an `allowedValues` enumeration, a `pattern`, or a numeric range (`minimum`/`maximum`). This compiles to JSON Schema `enum`, `pattern`, or range keywords. For descriptive (non-enforced) advertising of the same information at group level, the Collection `summaries` are populated in parallel.
+
+==== Restricting supported objects for a given system
+
+`ObjectRestriction` is a specialization aimed at the "restrict the objects supported in a given system" requirement: it limits a target field — typically `ssys:targets` — to an explicit `allowedObjects` list. A Mars-only deployment, for instance, restricts `ssys:targets` to `["Mars", "Phobos", "Deimos"]`; any other body is flagged by <<acr-stac,STAC>> Browser as invalid.
+
+==== Custom keywords
+
+New custom keywords are declared and constrained directly in the `pdssp` extension schema (layer 3). Listing that schema in an Item's `stac_extensions` is what makes the keywords validated by <<acr-stac,STAC>> Browser. This keeps the core untouched and the custom vocabulary versioned and discoverable.
+
+In addition to `pdssp:`, the model uses a second namespace, `pdsode:`, dedicated to indexterm:[ODE]<<acr-ode,ODE>>-specific fields that have no equivalent in the <<acr-stac,STAC>> core or in any published community extension, but that retain scientific or operational value and are worth surfacing in <<acr-stac,STAC>> Items — for example for display in <<acr-stac,STAC>> Browser or downstream processing pipelines. These fields (`pdsode:Observation_id`, `pdsode:PDSVolume_Id`, `pdsode:ODE_notes`, etc.) are not semantically mapped to any <<acr-stac,STAC>> construct: they are preserved verbatim from the source <<acr-ode,ODE>> record. Like `pdssp:`, the `pdsode:` namespace is governed by its own JSON Schema, declared alongside the <<acr-pdssp,PDSSP>> profile schema in each Item's `stac_extensions`.
+
+=== The PDSSP Profile as a Declared STAC Extension
+
+Because the Pole relies on <<acr-stac,STAC>> Browser to perform validation, the profile is not kept as a separate document but published as a *custom <<acr-stac,STAC>> extension JSON Schema* and declared in the `stac_extensions` array of every Item. <<acr-stac,STAC>> Browser (via stac-node-validator) fetches each schema URI listed in `stac_extensions` — custom extensions included — and validates the Item against it, so all the rules below are enforced client-side. Two practical conditions apply: the schema URL must be resolvable (no 404), and its host must allow cross-origin (CORS) requests, since the fetch happens in the browser.
+
+The single schema below realizes all four capabilities for a Mars-imagery deployment: it defines and constrains the `pdssp:` custom keywords, requires the companion extensions, turns selected fields into required (including a conditional rule), restricts allowed values and supported objects, and limits accepted asset media types — without modifying the generic <<acr-stac,STAC>> core.
+
+[source,json]
+----
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://pdssp.github.io/stacplanet/v1.0.0/schema.json",
+  "title": "PDSSP Planetary Data Schema for STAC Items and Collections",
+  "description": "Schema defining PDSSP-specific keywords, constraints, and extensions for planetary imagery and data products. Applies to both STAC Items and Collections, with mandatory fields for solar system targets, product types, and processing levels. For items, ssys:targets, ssys:target_class, version, product:type, and processing:level are required. For collections, ssys:targets, ssys:target_class, product:type, and processing:level are required.",
+  "type": "object",
+  "allOf": [
+    {
+      "if": {
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "const": "Feature"
+          }
+        }
+      },
+      "then": {
+        "$ref": "#/definitions/item"
+      }
+    },
+    {
+      "if": {
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "const": "Collection"
+          }
+        }
+      },
+      "then": {
+        "$ref": "#/definitions/collection"
+      }
+    }
+  ],
+  "definitions": {
+    "item": {
+      "type": "object",
+      "required": [
+        "geometry",
+        "properties",
+        "stac_extensions"
+      ],
+      "properties": {
+        "geometry": {
+          "type": ["object", "null"]
+        },
+        "stac_extensions": {
+          "type": "array",
+          "if": {
+            "properties": {
+              "geometry": {
+                "type": "null"
+              }
+            },
+            "required": ["geometry"]
+          },
+          "then": {
+            "allOf": [
+              {
+                "contains": {
+                  "type": "string",
+                  "pattern": "stac-extensions\\.github\\.io/ssys/"
+                }
+              },
+              {
+                "contains": {
+                  "type": "string",
+                  "pattern": "stac-extensions\\.github\\.io/product/"
+                }
+              },
+              {
+                "contains": {
+                  "type": "string",
+                  "pattern": "stac-extensions\\.github\\.io/processing/"
+                }
+              }
+            ]
+          },
+          "else": {
+            "allOf": [
+              {
+                "contains": {
+                  "type": "string",
+                  "pattern": "stac-extensions\\.github\\.io/ssys/"
+                }
+              },
+              {
+                "contains": {
+                  "type": "string",
+                  "pattern": "stac-extensions\\.github\\.io/projection/"
+                }
+              },
+              {
+                "contains": {
+                  "type": "string",
+                  "pattern": "stac-extensions\\.github\\.io/version/"
+                }
+              },
+              {
+                "contains": {
+                  "type": "string",
+                  "pattern": "stac-extensions\\.github\\.io/product/"
+                }
+              },
+              {
+                "contains": {
+                  "type": "string",
+                  "pattern": "stac-extensions\\.github\\.io/processing/"
+                }
+              }
+            ]
+          }
+        },
+        "properties": {
+          "$ref": "#/definitions/fields"
+        }
+      }
+    },
+    "collection": {
+      "type": "object",
+      "required": [
+        "stac_extensions",
+        "ssys:targets",
+        "ssys:target_class",
+        "product:type",
+        "processing:level"
+      ],
+      "properties": {
+        "stac_extensions": {
+          "type": "array",
+          "allOf": [
+            {
+              "contains": {
+                "type": "string",
+                "pattern": "stac-extensions\\.github\\.io/ssys/"
+              }
+            },
+            {
+              "contains": {
+                "type": "string",
+                "pattern": "stac-extensions\\.github\\.io/processing/"
+              }
+            },
+            {
+              "contains": {
+                "type": "string",
+                "pattern": "stac-extensions\\.github\\.io/product/"
+              }
+            }
+          ]
+        },
+        "ssys:targets": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": ["Mercury", "Venus", "Mars", "Moon", "Titan"]
+          },
+          "description": "List of solar system targets covered by the collection. At least one target is required."
+        },
+        "ssys:target_class": {
+          "type": "string",
+          "enum": ["planet", "satellite"],
+          "description": "Classification of the primary target (e.g., planet, satellite)."
+        },
+        "product:type": {
+          "type": "string",
+          "enum": [
+            "Cube",
+            "Spectrum",
+            "Spectral Cube",
+            "Image",
+            "Map",
+            "Volume",
+            "Time Series",
+            "Dynamic Spectrum",
+            "Catalog",
+            "Spatial Vector"
+          ],
+          "description": "Type of the data product. This field is mandatory."
+        },
+        "processing:level": {
+          "type": "string",
+          "enum": ["Ancillary", "Raw", "Calibrated", "Derived"],
+          "description": "Processing level of the data product. This field is mandatory."
+        }
+      }
+    },
+    "fields": {
+      "type": "object",
+      "required": [
+        "ssys:targets",
+        "ssys:target_class",
+        "version",
+        "product:type",
+        "processing:level"
+      ],
+      "properties": {
+        "ssys:targets": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": ["Mercury", "Venus", "Mars", "Moon", "Titan"]
+          },
+          "description": "List of solar system targets covered by the data. At least one target is required."
+        },
+        "ssys:target_class": {
+          "type": "string",
+          "enum": ["planet", "satellite"],
+          "description": "Classification of the primary target (e.g., planet, satellite)."
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Version identifier for the data product. This field is mandatory for items."
+        },
+        "product:type": {
+          "type": "string",
+          "enum": [
+            "Cube",
+            "Spectrum",
+            "Spectral Cube",
+            "Image",
+            "Map",
+            "Volume",
+            "Time Series",
+            "Dynamic Spectrum",
+            "Catalog",
+            "Spatial Vector"
+          ],
+          "description": "Type of the data product. This field is mandatory."
+        },
+        "processing:level": {
+          "type": "string",
+          "enum": ["Ancillary", "Raw", "Calibrated", "Derived"],
+          "description": "Processing level of the data product. This field is mandatory."
+        },
+        "pdssp:solar_longitude": {
+          "type": "number",
+          "description": "Solar longitude of the target at the time of observation (optional)."
+        },
+        "pdssp:solar_distance": {
+          "type": "number",
+          "description": "Distance from the Sun to the target at the time of observation, in astronomical units (optional)."
+        },
+        "pdssp:map_resolution": {
+          "type": "number",
+          "description": "Spatial resolution of the map, in meters per pixel (optional)."
+        },
+        "pdssp:map_scale": {
+          "type": "number",
+          "description": "Scale of the map (optional)."
+        }
+      }
+    }
+  }
+}
+----
+
+When an Item declares `https://pdssp.cnes.fr/stac/pdssp/v1.0.0/schema.json` in its `stac_extensions`, <<acr-stac,STAC>> Browser validates it against this schema and reports any breach directly in its validation panel: a missing required field, a target outside the supported planets in <<acr-pdssp,PDSSP>>, a `processing:level` outside the allowed set, a null geometry. The same generic <<acr-stac,STAC>> Item, published with a different <<acr-pdssp,PDSSP>> extension schema, can serve an entirely different mission under different rules — which is precisely the flexibility, extensibility, and strict, browser-side control sought for the Pole.
+
+The <<acr-pdssp,PDSSP>> extension schemas (`pdssp:` and `pdsode:`) are maintained and versioned in the https://github.com/pdssp/stacplanet[STACPlanet GitHub repository]. Each released version is published to GitHub Pages at a stable, CORS-enabled URL, which is the URL that must appear in `stac_extensions` for <<acr-stac,STAC>> Browser to fetch and validate against it. The version embedded in the URL (`v1.0.0`, `v1.1.0`, …) is the contract: Items already in production are never broken by a new release because they reference an immutable versioned URL.
+

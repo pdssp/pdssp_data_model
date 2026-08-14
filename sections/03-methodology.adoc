@@ -1,0 +1,12 @@
+== Methodology
+:doctype: book
+:lang: en
+
+To ensure a rigorous comparison, each reference model will be summarized into three to five key elements (entities, attributes, relationships) and then mapped to the components of the Pole’s model using correspondence tables.
+
+The indexterm:[O&M]<<acr-om,O&M>> standard will be presented first in the document, as it constitutes the semantic anchor point: the Pole’s model is built as a specialization of <<acr-om,O&M>>, enriched with fields required by NASA/indexterm:[ODE]<<acr-ode,ODE>>, indexterm:[EPN-TAP]<<acr-epn-tap,EPN-TAP>>, indexterm:[DOI]<<acr-doi,DOI>>, and Open Science.
+
+This "top-down" approach (from the generic <<acr-om,O&M>> standard to the specifics of the Pole) ensures:
+
+* Conceptual coherence across all stages of the data value chain;
+* The possibility of extending the model further (e.g., adoption of other observation standards or new indexterm:[FAIR]<<acr-fair,FAIR>> requirements).

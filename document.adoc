@@ -1,0 +1,100 @@
+= PDSSP Data Model
+:lang: en
+:author: CNES / PDSSP
+:organization: Pôle de Données et Services Surfaces Planétaires
+:copyright: CNES
+:project: PDSSP – Pôle de Données et Services Surfaces Planétaires
+:component: StacPlanet
+:title: PDSSP Data Model
+:description: This document describes the PDSSP Data Model.
+:url-repo: https://gitlab.cnes.fr/pdssp/stac-planet-platform/runbooks-and-architecture
+:toc: auto
+:imagesdir: images
+:front-cover-image: image::cover.png[]
+:doctype: book
+:sectnums:
+:partnums:
+:listing-caption: Listing
+:icons: font
+:icon-set: fas
+:docinfo: shared-footer
+:docid: PDSP-SP-2-0053-CNES
+:version: 1.0.0
+:date: 2026-06-23
+// revnumber/revdate drive the theme's title-page & footer ({revnumber}/{revdate}
+// in resources/style/pdssp-theme*.yml) and the site's version manifest
+// (scripts/publish-doc.sh) — bump these to publish a new version of this doc.
+:revnumber: 1.0.0
+:revdate: 2026-06-23
+:domainname: stacplanet.pdssp.eu
+:keywords: STAC, STACPlanet, PDSSP, ODE, IVOA, EPN-TAP, OGC, O&M
+// Macro inline pour signaler les commandes à vérifier avec l'équipe
+// Usage : verif:[VERIF-NNN — Message]
+:verif-label: ⚠ À VÉRIFIER
+
+
+// sections
+
+// = Profile O&M of PDSSP and Correspondence with EPN-Core
+// :doctype: book
+// :lang: en
+// :imagesdir: images
+
+:sectnums!:
+[.abstract]
+.Abstract
+--
+This document presents the abstract design of the data model for the Planetary Data System Search Platform (indexterm:[PDSSP]<<acr-pdssp,PDSSP>>) within the STACPlanet framework.
+
+The objective is to define an interoperable data model enabling the discovery, access, and reuse of planetary science data through modern open standards adopted by the scientific community.
+
+The design is based on several complementary reference frameworks:
+
+* NASA's Orbital Data Explorer (indexterm:[ODE]<<acr-ode,ODE>>) data model, widely used for planetary data indexing and search services.
+* The principles of Open Science, promoting accessibility, interoperability, and reusability of scientific data.
+* The Observation and Measurements (indexterm:[O&M]<<acr-om,O&M>>) model defined by the Open Geospatial Consortium (indexterm:[OGC]<<acr-ogc,OGC>>), providing a conceptual framework for representing scientific observations.
+* The SpatioTemporal Asset Catalog (indexterm:[STAC]<<acr-stac,STAC>>) standard, widely adopted for geospatial data discovery and metadata description.
+* The Europlanet Table Access Protocol (indexterm:[EPN-TAP]<<acr-epn-tap,EPN-TAP>>) from the indexterm:[IVOA]<<acr-ivoa,IVOA>>, which provides a standardized interface and data model for accessing planetary science data services.
+
+The document first introduces the core concepts of the <<acr-om,O&M>> model and its relevance for planetary science data representation. It then analyzes the NASA <<acr-ode,ODE>> data model in order to identify key entities and relationships required for planetary observation systems.
+
+A conceptual mapping between <<acr-om,O&M>>, <<acr-epn-tap,EPN-TAP>>, and <<acr-stac,STAC>> is then proposed. This mapping translates observation concepts, procedures, observed phenomena, results, and target entities into <<acr-stac,STAC>> core constructs such as Catalogs, Collections, Items, and Assets, while aligning them with <<acr-epn-tap,EPN-TAP>> parameterization principles and service-oriented access models.
+
+Finally, the document defines the resulting <<acr-stac,STAC>> data model for <<acr-pdssp,PDSSP>>, which emerges from the convergence of NASA practices, <<acr-ogc,OGC>> standards, <<acr-ivoa,IVOA>> <<acr-epn-tap,EPN-TAP>> recommendations, and the <<acr-stac,STAC>> ecosystem.
+
+This model forms the foundation of the STACPlanet architecture and aims to enable federated access to planetary datasets while ensuring semantic interoperability across modern scientific infrastructures.
+--
+
+[.keywords]
+.Keywords
+--
+{keywords}
+--
+
+include::sections/list-of-figures.adoc[]
+
+:sectnums:
+
+include::sections/00-acronyms.adoc[]
+
+include::sections/01-general-context.adoc[]
+
+include::sections/02-objectives.adoc[]
+
+include::sections/03-methodology.adoc[]
+
+include::sections/04-om-standard.adoc[]
+
+include::sections/05-reference-data-model.adoc[]
+
+include::sections/06-comparison-data-model.adoc[]
+
+include::sections/07-mapping-ode-stac.adoc[]
+
+include::sections/08-mapping-epn-stac.adoc[]
+
+include::sections/09-pdssp-model.adoc[]
+
+include::sections/10-references.adoc[]
+
+include::sections/index.adoc[]
