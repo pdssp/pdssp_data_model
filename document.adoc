@@ -8,7 +8,8 @@
 :title: PDSSP Data Model
 :description: This document describes the PDSSP Data Model.
 :url-repo: https://gitlab.cnes.fr/pdssp/stac-planet-platform/runbooks-and-architecture
-:toc: auto
+:toc: left
+:toclevels: 2
 :imagesdir: images
 :front-cover-image: image::cover.png[]
 :doctype: book

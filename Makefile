@@ -31,10 +31,10 @@ pdf-local: ## Build the PDF using a local Kroki server (see KROKI_URL_LOCAL)
 	$(BUNDLE) asciidoctor-pdf -r asciidoctor-kroki -a kroki-server-url=$(KROKI_URL_LOCAL) -a allow-uri-read -a kroki-fetch-diagram --theme resources/style/pdssp-theme.yml -a pdf-fontsdir=resources/fonts -o $(DOC).pdf $(INDEX)
 
 html: ## Build a single-page HTML version (pdssp-data-model.html)
-	$(BUNDLE) asciidoctor -r asciidoctor-kroki -a kroki-server-url=$(KROKI_URL) -a allow-uri-read -a kroki-fetch-diagram -a theme=resources/style/pdssp-theme-html.yml -o $(DOC).html $(INDEX)
+	$(BUNDLE) asciidoctor -r asciidoctor-kroki -a kroki-server-url=$(KROKI_URL) -a allow-uri-read -a kroki-fetch-diagram -a theme=resources/style/pdssp-theme-html.yml -a toc=left -o $(DOC).html $(INDEX)
 
 html-local: ## Build the HTML version using a local Kroki server
-	$(BUNDLE) asciidoctor -r asciidoctor-kroki -a kroki-server-url=$(KROKI_URL_LOCAL) -a allow-uri-read -a kroki-fetch-diagram -a theme=resources/style/pdssp-theme-html.yml -o $(DOC).html $(INDEX)
+	$(BUNDLE) asciidoctor -r asciidoctor-kroki -a kroki-server-url=$(KROKI_URL_LOCAL) -a allow-uri-read -a kroki-fetch-diagram -a theme=resources/style/pdssp-theme-html.yml -a toc=left -o $(DOC).html $(INDEX)
 
 site: html ## Assemble a browsable website into site/ (open site/index.html)
 	@mkdir -p $(SITE_DIR)
