@@ -25,8 +25,8 @@
 // revnumber/revdate drive the theme's title-page & footer ({revnumber}/{revdate}
 // in resources/style/pdssp-theme*.yml) and the site's version manifest
 // (scripts/publish-doc.sh) — bump these to publish a new version of this doc.
-:revnumber: 1.0.0
-:revdate: 2026-06-23
+:revnumber: 1.0.1
+:revdate: 2026-08-26
 :domainname: stacplanet.pdssp.eu
 :keywords: STAC, STACPlanet, PDSSP, ODE, IVOA, EPN-TAP, OGC, O&M
 // Macro inline pour signaler les commandes à vérifier avec l'équipe

@@ -257,7 +257,7 @@ The ODEObservationType class implements AbstractObservationType to include <<acr
 
 [[fig-odeobservationtype-class-diagram]]
 .ODEObservationType Class Diagram
-[plantuml,ode-observation-type-diagram]
+[plantuml,ode-observation-type-class-diagram]
 ....
 @startuml
 
@@ -280,7 +280,7 @@ The ODEObservationCollection class implements the <<acr-om,O&M>> ODEObservationC
 
 [[fig-odeobservationcollection-class-diagram]]
 .ODEObservationCollection Class Diagram
-[plantuml,abstract-observation-diagram]
+[plantuml,ode-collection-class-diagram]
 ....
 @startuml
 

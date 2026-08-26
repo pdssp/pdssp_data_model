@@ -4,13 +4,13 @@ This section details the mapping between the **indexterm:[O&M]<<acr-om,O&M>> (Ob
 Each <<acr-stac,STAC>> class is presented as an extension of the <<acr-om,O&M>> interfaces, with <<acr-stac,STAC>>-specific attributes and associations tailored to <<acr-stac,STAC>>.
 
 
-==== ODEHost
+==== STACHost
 
-The **STACHost** class implements the **<<acr-om,O&M>> Host** interface to include indexterm:[ODE]<<acr-ode,ODE>>-specific attributes for describing the platform (e.g., spacecraft, observatory) carrying the instrument.
+The **STACHost** class implements the **<<acr-om,O&M>> Host** interface to include indexterm:[STAC]<<acr-stac,STAC>>-specific attributes for describing the platform (e.g., spacecraft, observatory) carrying the instrument.
 
 [[fig-stachost-class-diagram]]
 .STACHost Class Diagram
-[plantuml,ode-host-class-diagram]
+[plantuml,stac-host-class-diagram]
 ....
 @startuml
 interface Host
@@ -70,7 +70,7 @@ The **STACObserver** class implements the **<<acr-om,O&M>> Observer** interface 
 
 [[fig-stacobserver-class-diagram]]
 .STACObserver Class Diagram
-[plantuml, stac-observing-class-diagram]
+[plantuml, stac-observer-class-diagram]
 ....
 @startuml
 interface Observer
@@ -146,7 +146,7 @@ The **STACObservingProcedure** implements the **<<acr-om,O&M>> ObservingProcedur
 
 [[fig-stacobservingprocedure-class-diagram]]
 .STACObservingProcedure Class Diagram
-[plantuml,ode-observing-class-diagram]
+[plantuml,stac-observing-class-diagram]
 ....
 @startuml STACObservingProcedure
 
@@ -194,7 +194,7 @@ Item o-- Link : 0..*
 ....
 
 
-==== STACODEObservableProperty
+==== STACObservableProperty
 
 The **STACObservableProperty** class extends the **<<acr-om,O&M>> ObservableProperty** interface to describe the physical properties being measured, with <<acr-stac,STAC>>-specific attributes.
 
@@ -242,9 +242,9 @@ The **STACFeatureOfInterest** class extends the **<<acr-om,O&M>> FeatureOfIntere
 @startuml
 interface FeatureOfInterest
 
-class ODEUltimateFeatureOfInterest
+class STACUltimateFeatureOfInterest
 
-class ODEProximateFeatureOfInterest
+class STACProximateFeatureOfInterest
 
 class STACFeatureOfInterest
 
@@ -294,8 +294,8 @@ class Band {
 
 FeatureOfInterest <|.. STACFeatureOfInterest
 
-STACFeatureOfInterest <|-- ODEUltimateFeatureOfInterest
-STACFeatureOfInterest <|-- ODEProximateFeatureOfInterest
+STACFeatureOfInterest <|-- STACUltimateFeatureOfInterest
+STACFeatureOfInterest <|-- STACProximateFeatureOfInterest
 
 STACFeatureOfInterest -- Item
 Item -- Properties
@@ -313,7 +313,7 @@ GeoJsonGeometry <|-- Geometry
 
 ==== STACResult
 
-The **STACResult** class extends the **<<acr-om,O&M>> Result** interface to describe data products and their access metadata in <<acr-ode,ODE>>.
+The **STACResult** class extends the **<<acr-om,O&M>> Result** interface to describe data products and their access metadata in <<acr-stac,STAC>>.
 
 [[fig-stacresult-class-diagram]]
 .STACResult Class Diagram
@@ -372,13 +372,13 @@ Item o-- Link : 0..*
 
 ==== STACObservation
 
-The **STACObservation** class extends **AbstractObservation** to include <<acr-ode,ODE>>-specific temporal and observational attributes.
+The **STACObservation** class extends **AbstractObservation** to include <<acr-stac,STAC>>-specific temporal and observational attributes.
 
 [[fig-stacobservation-class-diagram]]
 .STACObservation Class Diagram
 [plantuml,stac-observation-class-diagram]
 ....
-@startuml ODEObservation
+@startuml STACObservation
 interface AbstractObservation {
   + phenomenonTime
   + resultTime
@@ -450,13 +450,13 @@ Item o-- Link : 0..*
 @enduml
 ....
 
-==== ODEObservationType
+==== STACObservationType
 
-The ODEObservationType class implements AbstractObservationType to include <<acr-ode,ODE>>-specific attributes for describing observations within the <<acr-ode,ODE>> framework.
+The STACObservationType class implements AbstractObservationType to include <<acr-stac,STAC>>-specific attributes for describing observations within the <<acr-stac,STAC>> framework.
 
 [[fig-stacobservationtype-class-diagram]]
 .STACObservationType Class Diagram
-[plantuml,stac-observation-type-diagram]
+[plantuml,stac-observation-type-class-diagram]
 ....
 @startuml
 
@@ -494,7 +494,7 @@ The STACObservationCollection class implements the <<acr-om,O&M>> STACObservatio
 
 [[fig-stacobservationcollection-class-diagram]]
 .STACObservationCollection Class Diagram
-[plantuml,stac-collection-diagram]
+[plantuml,stac-collection-class-diagram]
 ....
 @startuml
 

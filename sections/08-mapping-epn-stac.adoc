@@ -1,79 +1,15 @@
 == Mapping STAC to EPN-TAP
 
-=== Metadata Mapping according O&M
-
-==== Observation
+=== Host
 
 [cols="2,2,3", options="header"]
 |===
-|indexterm:[EPN-TAP]<<acr-epn-tap,EPN-TAP>>  |indexterm:[PDSSP]<<acr-pdssp,PDSSP>> indexterm:[STAC]<<acr-stac,STAC>> | Notes
+|indexterm:[ODE]<<acr-ode,ODE>>  |indexterm:[PDSSP]<<acr-pdssp,PDSSP>> indexterm:[STAC]<<acr-stac,STAC>> | Notes
 
-| time_min 
-| item.properties.start_datetime 
-| The time parameters in <<acr-epn-tap,EPN-TAP>> are always provided in UTC and formatted in Julian Days (expressed in double precision). EPNCore uses standard indexterm:[JD]<<acr-jd,JD>> to avoid ambiguity with time origin. start_datetime in <<acr-stac,STAC>> uses UTC time. If datetime is not null, time_min must be set to datetime 
-
-| time_max 
-| item.properties.end_datetime 
-| The time parameters in <<acr-epn-tap,EPN-TAP>> are always provided in UTC and formatted in Julian Days (expressed in double precision). EPNCore uses standard <<acr-jd,JD>> to avoid ambiguity with time origin. start_datetime in <<acr-stac,STAC>> uses UTC time.
-
-| time_exp_min 
-|
-| compute end_datetime-start_datetime, expressed as seconds
-
-| time_exp_max 
-|
+| instrument_host_name
+| item.properties.platform
 |
 
-| time_refposition
-| item.properties.ssys:targets
-| First element of ssys:targets
-
-| time_scale
-|
-| Set time_scale = UTC
-
-| local_time_min
-| item.properties.ssys:local_time
-| Must be converted
-
-| local_time_max
-|
-|
-
-| target_time_min
-| item.properties.start_datetime
-| UTC time expressed as TIMESTAMP
-
-| target_time_max
-| item.properties.end_datetime
-| UTC time expressed as TIMESTAMP
-
-| obs_id
-| item.id
-|
-
-| granule_uid
-|
-| Convert granule_uid = id#md5(asset.href)
-
-| granule_gid
-|
-|
-|===
-
-==== AbstractObservationType
-
-[cols="2,2,3", options="header"]
-|===
-|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
-
-| dataproduct_type
-| item.properties.product:type
-|
-
-| processing_level
-| item.properties.processing:level
-| mapping with enums (<<acr-epn-tap,EPN-TAP>> uses an acronym where <<acr-pdssp,PDSSP>> uses the name)
 |===
 
 === Observer
@@ -142,6 +78,79 @@
 | collection.provider.name
 |
 |===
+
+=== ObservingProcedure
+
+[cols="2,2,3", options="header"]
+|===
+|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+
+| sample_id
+|
+|
+
+| data_calibration_desc
+|
+|
+
+| setup_desc
+|
+|
+
+| measurement_atmosphere
+|
+|
+
+| temperature
+|
+|
+
+| pressure
+|
+|
+
+| sample_desc
+|
+|
+
+| proposal_id
+|
+|
+
+| proposal_pi
+|
+|
+
+| proposal_title
+|
+|
+
+| proposal_target_name
+|
+|
+
+| proposal_target_description
+|
+|
+
+| campain
+|
+|
+
+| target_secondary_hemisphere
+|
+|
+
+| orientation
+|
+|
+
+| original_publisher
+|
+|
+
+|===
+
 
 === ObservableProperty
 
@@ -246,11 +255,11 @@
 | spatial_frame_type = body
 
 | incidence
-| item.properties.view:incidence_angle
+| 90° − item.properties.view:sun_elevation
 |
 
 | emergence
-| TODO off_nadir ?
+| item.properties.view:incidence_angle
 |
 
 | phase
@@ -420,78 +429,6 @@
 
 |===
 
-=== ObservingProcedure
-
-[cols="2,2,3", options="header"]
-|===
-|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
-
-| sample_id
-|
-|
-
-| data_calibration_desc
-|
-|
-
-| setup_desc
-|
-|
-
-| measurement_atmosphere
-|
-|
-
-| temperature
-|
-|
-
-| pressure
-|
-|
-
-| sample_desc
-|
-|
-
-| proposal_id
-|
-|
-
-| proposal_pi
-|
-|
-
-| proposal_title
-|
-|
-
-| proposal_target_name
-|
-|
-
-| proposal_target_description
-|
-|
-
-| campain
-|
-|
-
-| target_secondary_hemisphere
-|
-|
-
-| orientation
-|
-|
-
-| original_publisher
-|
-|
-
-|===
-
 === Result
 
 [cols="2,2,3", options="header"]
@@ -562,8 +499,104 @@
 | external_link
 | item.assets[role=metadata].href
 |
+
+| service_title
+| 
+|
+
+| creation_date
+| created
+|
+
+| modification_date
+| updated
+|
+
+| release_date
+| published
+| timestamps extension
+
 |===
 
-=== Collection
+=== Observation
 
-N/A
+[cols="2,2,3", options="header"]
+|===
+|indexterm:[EPN-TAP]<<acr-epn-tap,EPN-TAP>>  |indexterm:[PDSSP]<<acr-pdssp,PDSSP>> indexterm:[STAC]<<acr-stac,STAC>> | Notes
+
+| time_min 
+| item.properties.start_datetime 
+| The time parameters in <<acr-epn-tap,EPN-TAP>> are always provided in UTC and formatted in Julian Days (expressed in double precision). EPNCore uses standard indexterm:[JD]<<acr-jd,JD>> to avoid ambiguity with time origin. start_datetime in <<acr-stac,STAC>> uses UTC time. If datetime is not null, time_min must be set to datetime 
+
+| time_max 
+| item.properties.end_datetime 
+| The time parameters in <<acr-epn-tap,EPN-TAP>> are always provided in UTC and formatted in Julian Days (expressed in double precision). EPNCore uses standard <<acr-jd,JD>> to avoid ambiguity with time origin. start_datetime in <<acr-stac,STAC>> uses UTC time.
+
+| time_exp_min 
+|
+| compute end_datetime-start_datetime, expressed as seconds
+
+| time_exp_max 
+|
+|
+
+| time_refposition
+| item.properties.ssys:targets
+| First element of ssys:targets
+
+| time_scale
+|
+| Set time_scale = UTC
+
+| local_time_min
+| item.properties.ssys:local_time
+| Must be converted
+
+| local_time_max
+|
+|
+
+| target_time_min
+| item.properties.start_datetime
+| UTC time expressed as TIMESTAMP
+
+| target_time_max
+| item.properties.end_datetime
+| UTC time expressed as TIMESTAMP
+
+| obs_id
+| item.id
+|
+
+| granule_uid
+|
+| Convert granule_uid = id#md5(asset.href)
+
+|===
+
+=== ObservationType
+
+[cols="2,2,3", options="header"]
+|===
+|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+
+| dataproduct_type
+| item.properties.product:type
+|
+
+| processing_level
+| item.properties.processing:level
+| mapping with enums (<<acr-epn-tap,EPN-TAP>> uses an acronym where <<acr-pdssp,PDSSP>> uses the name)
+|===
+
+=== ObservationCollection
+
+[cols="2,2,3", options="header"]
+|===
+|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+
+| granule_gid
+| collection.id
+|
+
+|===

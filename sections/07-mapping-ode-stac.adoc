@@ -1,8 +1,6 @@
 == Mapping NASA ODE to STAC
 
-=== Metadata Mapping according O&M
-
-==== Host
+=== Host
 
 [cols="2,2,3", options="header"]
 |===
@@ -14,7 +12,7 @@
 
 |===
 
-==== Observer
+=== Observer
 
 [cols="2,2,3", options="header"]
 |===
@@ -63,7 +61,11 @@
 
 |===
 
-==== ODEFeatureOfInterest
+=== ObservableProperty
+
+N/A
+
+=== FeatureOfInterest
 
 [cols="2,2,3", options="header"]
 |===
@@ -126,7 +128,7 @@
 | Not mapped
 |===
 
-==== ODEResult
+=== Result
 
 [cols="2,2,3", options="header"]
 |===
@@ -257,7 +259,7 @@
 |
 |===
 
-==== Observation
+=== Observation
 
 [cols="2,2,3", options="header"]
 |===
@@ -293,7 +295,7 @@
 | Fallback order for datetime : Observation_time → UTC_start_time → Product_creation_time → Product_release_date →  earlest(Creation_date) in files
 |===
 
-==== ObservationType
+=== ObservationType
 
 [cols="2,2,3", options="header"]
 |===
@@ -308,7 +310,7 @@
 | Fallback order: Label_product_type → pt.
 |===
 
-==== ObservationCollection
+=== ObservationCollection
 
 [cols="2,2,3", options="header"]
 |===
@@ -438,4 +440,3 @@
 | processing:level
 | Compute processing:level based on several metadata
 |===
-

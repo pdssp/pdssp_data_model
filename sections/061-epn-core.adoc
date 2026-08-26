@@ -397,12 +397,20 @@ class APISExtension {
   + acquisition_ID[0..1]
 }
 
+class GranuleCallBackInfo {
+  + service_title
+  + creation_date
+  + modification_date
+  + release_date
+}
+
 Result <|.. EPNResult
 EPNResult o-- DataAccessReference : 0..1
 EPNResult o-- MiscellaneousFileMetadata : 0..1
 EPNResult o-- MapsExtension : 0..1
 EPNResult o-- APISExtension : 0..1
 EPNResult o-- SupplementaryDecription : 0..1
+EPNResult o-- GranuleCallBackInfo
 
 @enduml
 ....
@@ -467,8 +475,8 @@ EPNObservationType -- ProcessingType
 The EPNObservation class implements the <<acr-om,O&M>> AbstractObservation to include EPN-specific temporal attributes for describing observations within the <<acr-epn-tap,EPN-TAP>> framework.
 
 [[fig-epnobservation-class-diagram]]
-.EPNObservation Class Diagram
-[plantuml,abstract-observation-diagram]
+.EPNObservation Class Diagram2
+[plantuml,epn-observation-diagram]
 ....
 @startuml
 
@@ -516,7 +524,7 @@ The EPNObservationCollection class implements the <<acr-om,O&M>> AbstractObserva
 
 [[fig-epnobservationcollection-class-diagram]]
 .EPNObservationCollection Class Diagram
-[plantuml,abstract-observation-diagram]
+[plantuml,epn-collection-diagram]
 ....
 @startuml
 
