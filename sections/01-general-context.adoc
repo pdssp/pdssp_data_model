@@ -50,6 +50,8 @@ FAIR and Open are complementary but distinct requirements, and PDSSP must satisf
 * **Open** — freely accessible without unjustified technical, legal, or financial barriers, and released under an open license, following the "as open as possible, as closed as necessary" principle.
 ====
 
+=== STAC Planet data model constraints
+
 The Planetary Surfaces Data and Services Pole (indexterm:[PDSSP]<<acr-pdssp,PDSSP>>) must therefore be able to ingest the free products provided by NASA/<<acr-ode,ODE>>, transform them into a format compliant with <<acr-epn-tap,EPN-TAP>>, assign them a <<acr-doi,DOI>>, and make them fully reusable within the Open Science ecosystem. This dual constraint—accepting a very specific input format and producing a set of heterogeneous outputs—requires a central data model that serves as a pivot between the different standards.
 
 [[fig-pdssp-pivot-architecture]]
