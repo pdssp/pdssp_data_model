@@ -50,7 +50,13 @@ This section lists the normative documents, standards, and frameworks referenced
 |===
 |Reference |Title |Version/Date |URL
 
+|Wilkinson et al. |The <<acr-fair,FAIR>> Guiding Principles for scientific data management and stewardship. Sci. Data 3:160018 |2016 |https://doi.org/10.1038/sdata.2016.18
+
 |indexterm:[FAIR]<<acr-fair,FAIR>> Principles |Findable, Accessible, Interoperable, Reusable |2016 |https://www.go-fair.org/fair-principles/
+
+|FAIR Principles (Ouvrir la Science) |French national Open Science portal — FAIR sub-criteria |N/A |https://www.ouvrirlascience.fr/fair-principles/
+
+|W3C indexterm:[PROV]<<acr-prov,PROV>>-Overview |An Overview of the PROV Family of Documents |2013 |https://www.w3.org/TR/prov-overview/
 
 |DataCite Schema |DataCite Metadata Schema |4.7 |https://schema.datacite.org/
 

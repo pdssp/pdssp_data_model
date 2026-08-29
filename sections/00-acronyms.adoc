@@ -36,6 +36,8 @@ This section lists, in alphabetical order, the acronyms used throughout this doc
 
 |[[acr-pdssp]]PDSSP |Planetary Surfaces Data and Services Pole
 
+|[[acr-prov]]PROV |W3C Provenance (data model and family of specifications)
+
 |[[acr-pt]]PT |Product Type
 
 |[[acr-stac]]STAC |SpatioTemporal Asset Catalog
