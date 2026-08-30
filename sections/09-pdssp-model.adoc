@@ -33,30 +33,51 @@ NOTE: The separation between layers 1–3 (the *schema*: what *can* be described
 
 [[fig-the-four-layers-of-the-pdssp-data-model]]
 .The Four Layers of the PDSSP Data Model
-[plantuml,pdssp-layer-stack]
+// Rendered with Graphviz (not PlantUML): an HTML-like <TABLE> label with an
+// explicit WIDTH gives every layer band the exact same width deterministically.
+// PlantUML auto-sizes each rectangle to its own text, which left the four
+// layers at very different widths (346-686px) and out of spatial alignment.
+[graphviz,pdssp-layer-stack]
 ....
-@startuml
-top to bottom direction
-skinparam backgroundColor #FEFEFE
-skinparam defaultFontSize 13
-skinparam defaultTextAlignment center
-skinparam rectangle {
-  BorderColor #555555
-  BorderThickness 2
+digraph G {
+  bgcolor="#FEFEFE";
+  rankdir=TB;
+  nodesep=0.3;
+  ranksep=0.25;
+  node [shape=plain];
+
+  L4 [label=<
+    <TABLE WIDTH="620" BORDER="2" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#555555" BGCOLOR="#FFD700" STYLE="ROUNDED">
+      <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="14"><B>Layer 4 — PDSSP Profile</B>  <I>configurable per deployment</I></FONT></TD></TR>
+      <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="12">requiredness rules &#183; value constraints &#183; object restrictions &#183; file validation</FONT></TD></TR>
+    </TABLE>
+  >];
+
+  L3 [label=<
+    <TABLE WIDTH="620" BORDER="2" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#555555" BGCOLOR="#90EE90" STYLE="ROUNDED">
+      <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="14"><B>Layer 3 — "pdssp:" and "pdsode:" extensions</B>  <I>custom namespaces</I></FONT></TD></TR>
+      <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="12">pdssp:solar_longitude &#183; pdssp:solar_distance &#183; pdssp:map_resolution &#183; pdsode:Observation_id &#183; &#8230;</FONT></TD></TR>
+    </TABLE>
+  >];
+
+  L2 [label=<
+    <TABLE WIDTH="620" BORDER="2" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#555555" BGCOLOR="#87CEEB" STYLE="ROUNDED">
+      <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="14"><B>Layer 2 — Standard STAC extensions</B>  <I>shared vocabulary</I></FONT></TD></TR>
+      <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="12">ssys &#183; view &#183; proj &#183; processing &#183; product &#183; sat &#183; file &#183; sci &#183; eo &#183; timestamps &#183; &#8230;</FONT></TD></TR>
+    </TABLE>
+  >];
+
+  L1 [label=<
+    <TABLE WIDTH="620" BORDER="2" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#555555" BGCOLOR="#D3D3D3" STYLE="ROUNDED">
+      <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="14"><B>Layer 1 — STAC core</B>  <I>generic backbone, never modified</I></FONT></TD></TR>
+      <TR><TD ALIGN="CENTER"><FONT POINT-SIZE="12">Catalog &#183; Collection &#183; Item &#183; Asset &#183; Link</FONT></TD></TR>
+    </TABLE>
+  >];
+
+  L4 -> L3 [style=invis];
+  L3 -> L2 [style=invis];
+  L2 -> L1 [style=invis];
 }
-
-rectangle "**Layer 4 — PDSSP Profile**  //configurable per deployment//\nrequiredness rules  ·  value constraints  ·  object restrictions  ·  file validation" as L4 #FFD700
-
-rectangle "**Layer 3 — ''pdssp:'' and ''pdsode:'' extensions**  //custom namespaces//\npdssp:solar_longitude  ·  pdssp:solar_distance  ·  pdssp:map_resolution  ·  pdsode:Observation_id  ·  …" as L3 #90EE90
-
-rectangle "**Layer 2 — Standard STAC extensions**  //shared vocabulary//\nssys  ·  view  ·  proj  ·  processing  ·  product  ·  sat  ·  file  ·  sci  ·  eo  ·  timestamps  ·  …" as L2 #87CEEB
-
-rectangle "**Layer 1 — STAC core**  //generic backbone, never modified//\nCatalog  ·  Collection  ·  Item  ·  Asset  ·  Link" as L1 #D3D3D3
-
-L4 -[hidden]-> L3
-L3 -[hidden]-> L2
-L2 -[hidden]-> L1
-@enduml
 ....
 
 === Architecture

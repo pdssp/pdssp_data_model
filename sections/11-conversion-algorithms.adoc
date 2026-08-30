@@ -1,0 +1,155 @@
+[appendix]
+== EPN-TAP ↔ STAC Conversion Algorithms
+
+The mapping tables in <<_mapping_stac_to_epn_tap>> reference several
+non-trivial conversions between an EPN-TAP parameter and its STAC source.
+This appendix describes each one as a plain algorithm, independent of any
+particular implementation, so the mapping stays meaningful to a reader
+without access to the proxy's source code. A reference implementation of
+every algorithm below exists as a Python function in the `epntap2cql2`
+proxy's `converters.py` module.
+
+[[algo-jd-iso]]
+=== Julian Date ↔ ISO 8601 datetime
+
+EPN-TAP's `time_min`/`time_max` are Julian Dates (UTC, double precision);
+STAC's `start_datetime`/`end_datetime` are RFC 3339 / ISO 8601 strings.
+
+*EPN-TAP → STAC (Julian Date to ISO 8601):*
+
+. Let `JD_UNIX_EPOCH = 2440587.5` (the Julian Date of 1970-01-01T00:00:00Z).
+. `unix_seconds = (jd - JD_UNIX_EPOCH) × 86400`
+. Convert `unix_seconds` (a Unix timestamp) to a UTC calendar date-time.
+. Format it as an ISO 8601 string with a trailing `Z` (e.g.
+  `2007-06-05T22:50:23.754900Z`).
+
+*STAC → EPN-TAP (ISO 8601 to Julian Date):* the inverse --
+
+. Parse the ISO 8601 string into a UTC date-time (a bare `Z` suffix is
+  read as `+00:00`; a string with no timezone at all is assumed UTC).
+. `unix_seconds` = seconds since 1970-01-01T00:00:00Z.
+. `jd = unix_seconds / 86400 + JD_UNIX_EPOCH`
+
+[[algo-first-of-list]]
+=== First element of a list-valued property
+
+Several STAC properties are lists where EPN-TAP expects a single value
+(e.g. `ssys:targets`, `instruments`). Algorithm: if the value is a list,
+return its first element (or nothing, if the list is empty); otherwise
+return the value unchanged.
+
+[[algo-lowercase-first-of-list]]
+=== First element of a list-valued property, lower-cased
+
+Same as <<algo-first-of-list>>, then lower-case the result if it is a
+string. Used for `target_region` from `ssys:targets`, since the target
+region controlled vocabulary (see the
+https://www.ivoa.net/rdf/uat/2026-01-02/uat.html[IVOA UAT]) uses lower
+case terms.
+
+[[algo-join-comma]]
+=== Comma-join a list-valued property
+
+Alternative to <<algo-first-of-list>> when every element should be kept
+rather than only the first: join every element of the list into one
+string with `", "` as the separator.
+
+[[algo-first-band-name]]
+=== Name of the first spectral band
+
+For EPN-TAP's `filter` from a STAC `bands` (or `eo:bands`) property: each
+entry of that list is an object with (at least) a `name` field. Return the
+`name` of the first entry, or nothing if the list is empty or absent.
+
+[[algo-primary-asset]]
+=== Picking the primary data asset
+
+Unlike EPN-TAP's single `access_url`/`access_format`/`access_estsize`/
+`access_md5`/`file_name` columns, a STAC item's `assets` object is keyed
+by an arbitrary, per-item file name -- there is no fixed key such as
+`assets.data`. The algorithm below picks *one* asset to represent "the"
+data product for that item, used by every one of those EPN-TAP columns:
+
+. Consider every asset whose `roles` list contains `"data"`.
+. If at least one such asset exists, keep only those; otherwise, fall
+  back to considering every asset regardless of role.
+. Among the candidates, pick the one with the largest `file:size`
+  (missing/absent size counts as 0).
+. Read the requested attribute off that one asset: `href` (→
+  `access_url`), `type` (→ `access_format`), `file:size` (→
+  `access_estsize`), `file:checksum` (→ `access_md5`), or `title` (→
+  `file_name`).
+
+If this heuristic picks the wrong file for a given collection (e.g. a
+browse/label file that happens to also be tagged `"data"`), it should be
+tuned per collection rather than universally.
+
+[[algo-role-asset]]
+=== Picking an asset by role
+
+For `thumbnail_url` and `external_link`: return the `href` of the first
+asset (in the item's own key order) whose `roles` list contains
+`"thumbnail"` (resp. `"metadata"`). Unlike <<algo-primary-asset>>, no
+size-based tie-breaking is applied, since there is normally at most one
+asset of these roles per item.
+
+[[algo-moc-healpix-asset]]
+=== MOC/HEALPix coverage asset
+
+For `coverage`: return the `href` of the first asset (in the item's own
+key order) whose *key* contains `"moc"` or `"healpix"` (case-insensitive)
+-- a PDSSP-specific naming convention for a MOC/HEALPix footprint file,
+rather than a STAC `roles` entry.
+
+[[algo-geometry-minmax]]
+=== Bounding box of a GeoJSON geometry
+
+For `c1min`/`c1max`/`c2min`/`c2max` (and, were a third axis ever needed,
+`c3min`/`c3max`) from an item's `geometry` (GeoJSON `Point`, `Polygon`,
+`MultiPolygon`, ...):
+
+. Recursively walk the geometry's `coordinates` array. At each level: if
+  the current array is a flat list of 2 (or 3) numbers, it is one
+  coordinate pair/triple `[lon, lat(, alt)]` -- record it and stop
+  recursing into it; otherwise recurse into each of its elements.
+  This works uniformly for every GeoJSON geometry type without assuming a
+  fixed nesting depth.
+. `c1min`/`c1max` = the minimum/maximum of the first component
+  (longitude) across every recorded coordinate.
+. `c2min`/`c2max` = the minimum/maximum of the second component
+  (latitude).
+. If no coordinate could be extracted (missing/empty geometry), the
+  result is absent, not zero.
+
+Per EPN-TAP2's own table of spatial UCDs (conditioned on
+`spatial_frame_type`), with `spatial_frame_type = body` (this proxy's
+fixed value, see <<algo-constant-column>>) the correct UCDs are
+`pos.bodyrc.lon;stat.min`/`stat.max` for `c1min`/`c1max` and
+`pos.bodyrc.lat;stat.min`/`stat.max` for `c2min`/`c2max`.
+
+[[algo-constant-column]]
+=== Fixed (constant) columns
+
+Some EPN-TAP columns have no variable STAC source at all -- either
+because the value is the same for every granule this proxy serves (e.g.
+`spatial_frame_type`, always `"body"`) or because it identifies the
+*service* rather than any one granule (`service_title`, EPN-TAP2
+mandatory, set to the service's own title). Algorithm: none -- the
+configured fixed value is returned for every row, unconditionally.
+
+[[algo-collection-path]]
+=== Value derived from the collection, not the item
+
+`publisher`, `producer_name` and `producer_institute` are the same for
+every item of one STAC collection, but differ between collections -- so,
+unlike a per-item conversion, this one is resolved once per collection
+rather than once per row:
+
+. Read the STAC Collection object's `providers` list (present directly in
+  the `/collections` listing response; no extra request is needed).
+. Return the `name` of the first provider entry whose `roles` list
+  contains the requested role -- `"host"` for `publisher`, `"producer"`
+  for `producer_name`/`producer_institute` (STAC has no separate
+  "institute" field, so both read the same provider's `name`).
+. If no provider has that role, the column has no value for that
+  collection.

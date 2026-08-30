@@ -1,4 +1,0 @@
-:sectnums!:
-
-[index]
-== Index

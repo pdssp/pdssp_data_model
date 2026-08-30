@@ -4,11 +4,11 @@
 
 In the current landscape of planetary research, the interoperability of data sets is an unavoidable requirement. Spatial programs and the massive publication of data volumes via the indexterm:[ODE]<<acr-ode,ODE>> service are on the rise. On the other hand, European researchers and archive services use the indexterm:[EPN-TAP]<<acr-epn-tap,EPN-TAP>> model to describe and disseminate their data sets, while the indexterm:[DOI]<<acr-doi,DOI>> (Digital Object Identifier) ensures the permanence and citability of numerical resources.
 
-Finally, the Open Science movement requires that these data be indexterm:[FAIR]<<acr-fair,FAIR>> (Findable, Accessible, Interoperable, Reusable) footnote:[Wilkinson, M. D. et al. The FAIR Guiding Principles for scientific data management and stewardship. Sci. Data 3:160018 doi: 10.1038/sdata.2016.18 (2016).] in order to maximize their scientific and societal value.
+Finally, the Open Science movement requires that these data be indexterm:[FAIR]<<acr-fair,FAIR>> (Findable, Accessible, Interoperable, Reusable) (<<ref-wilkinson-fair,Wilkinson et al., 2016>>) in order to maximize their scientific and societal value.
 
 === FAIR Principles
 
-The <<acr-fair,FAIR>> principles, originally defined by Wilkinson et al. (2016), are organized into four groups, each broken down into sub-criteria footnote:[Source: https://www.ouvrirlascience.fr/fair-principles/]:
+The <<acr-fair,FAIR>> principles, originally defined by <<ref-wilkinson-fair,Wilkinson et al. (2016)>>, are organized into four groups, each broken down into sub-criteria (<<ref-ouvrir-fair,source>>):
 
 [cols="1,6",options="header"]
 |===
@@ -38,7 +38,7 @@ The <<acr-fair,FAIR>> principles, originally defined by Wilkinson et al. (2016),
 
 |R1 |(Meta)data are richly described with a plurality of accurate and relevant attributes.
 |R1.1 |(Meta)data are released with a clear and accessible data usage license.
-|R1.2 |(Meta)data are associated with detailed provenance footnote:[W3C indexterm:[PROV]<<acr-prov,PROV>>-Overview: An Overview of the PROV Family of Documents, https://www.w3.org/TR/prov-overview/ (2013).].
+|R1.2 |(Meta)data are associated with detailed provenance (<<ref-prov-overview,W3C PROV-Overview, 2013>>).
 |R1.3 |(Meta)data meet domain-relevant community standards.
 |===
 

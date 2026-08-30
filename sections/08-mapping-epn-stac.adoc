@@ -2,151 +2,247 @@
 
 === Host
 
-[cols="2,2,3", options="header"]
+[cols="2,2,1,1,2,3", options="header"]
 |===
-|indexterm:[ODE]<<acr-ode,ODE>>  |indexterm:[PDSSP]<<acr-pdssp,PDSSP>> indexterm:[STAC]<<acr-stac,STAC>> | Notes
+|indexterm:[ODE]<<acr-ode,ODE>>  |indexterm:[PDSSP]<<acr-pdssp,PDSSP>> indexterm:[STAC]<<acr-stac,STAC>> |Datatype |Arraysize |UCD | Notes
 
 | instrument_host_name
 | item.properties.platform
+| char
+| *
+| meta.id;instr.obsty
 |
 
 |===
 
 === Observer
 
-[cols="2,2,3", options="header"]
+[cols="2,2,1,1,2,3", options="header"]
 |===
-|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> |Datatype |Arraysize |UCD | Notes
 
 |instrument_name
 |item.properties.instruments
-|
+| char
+| *
+| meta.id;instr
+| properties.instruments is a list; see <<algo-first-of-list>>.
 
 | instrument_type
 |
+| 
+| 
+| 
 |
 
 | detector_name
 |
+| 
+| 
+| 
 |
 
 | opt_elem
 |
+| 
+| 
+| 
 |
 
 | observer_id
+| 
+| 
+| 
 | 
 |
 
 | observer_code
 | 
+| 
+| 
+| 
 |
 
 | observer_institute
 |
+| 
+| 
+| 
 |
 
 | observer_country
 |
+| 
+| 
+| 
 |
 
 | observer_location
 |
+| 
+| 
+| 
 |
 
 | observer_lon
 |
+| 
+| 
+| 
 |
 
 | observer_lat
 |
+| 
+| 
+| 
 |
 
 | subobserver_longitude
 |
+| 
+| 
+| 
 |
 
 | subobserver_latitude
 |
+| 
+| 
+| 
 |
 
 | producer_name
-| collection.provider.name
-|
+| collection.providers[role=producer].name
+| char
+| *
+| meta.note
+| see <<algo-collection-path>>.
 
 | producer_institute
-| collection.provider.name
-|
+| collection.providers[role=producer].name
+| char
+| *
+| meta.note
+| See <<algo-collection-path>>.
 |===
 
 === ObservingProcedure
 
-[cols="2,2,3", options="header"]
+[cols="2,2,1,1,2,3", options="header"]
 |===
-|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> |Datatype |Arraysize |UCD | Notes
 
 | sample_id
 |
+| 
+| 
+| 
 |
 
 | data_calibration_desc
 |
+| 
+| 
+| 
 |
 
 | setup_desc
 |
+| 
+| 
+| 
 |
 
 | measurement_atmosphere
 |
+| 
+| 
+| 
 |
 
 | temperature
 |
+| 
+| 
+| 
 |
 
 | pressure
 |
+| 
+| 
+| 
 |
 
 | sample_desc
 |
+| 
+| 
+| 
 |
 
 | proposal_id
 |
+| 
+| 
+| 
 |
 
 | proposal_pi
 |
+| 
+| 
+| 
 |
 
 | proposal_title
 |
+| 
+| 
+| 
 |
 
 | proposal_target_name
 |
+| 
+| 
+| 
 |
 
 | proposal_target_description
 |
+| 
+| 
+| 
 |
 
 | campain
 |
+| 
+| 
+| 
 |
 
 | target_secondary_hemisphere
 |
+| 
+| 
+| 
 |
 
 | orientation
 |
+| 
+| 
+| 
 |
 
 | original_publisher
 |
+| 
+| 
+| 
 |
 
 |===
@@ -154,71 +250,119 @@
 
 === ObservableProperty
 
-[cols="2,2,3", options="header"]
+[cols="2,2,1,1,2,3", options="header"]
 |===
-|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> |Datatype |Arraysize |UCD | Notes
 
 | species 
 |
+| 
+| 
+| 
 |
 
 | messenger
 |
+| 
+| 
+| 
 |
 
 | filter
 | item.properties.bands[0].name
-|
+| char
+| *
+| meta.id;instr.filter
+| See <<algo-first-band-name>>.
 
 | measurement_type
-| item.properties.pdssp:measurement_type TODO
+| item.properties.pdssp:measurement_type
+| char
+| *
+| meta.code
 |
 
 | particle_spectral_type
 |
+| 
+| 
+| 
 |
 
 | particle_spectral_range
 |
+| 
+| 
+| 
 |
 
 | particle_spectral_sampling_step
 |
+| 
+| 
+| 
 |
 
 | particle_spectral_resolution
 |
+| 
+| 
+| 
 |
 
 | spectrum_type
 |
+| 
+| 
+| 
 |
 
 | sample_classification
 |
+| 
+| 
+| 
 |
 
 | species_inchikey
 |
+| 
+| 
+| 
 |
 
 | grain_size
 |
+| 
+| 
+| 
 |
 
 | geometry_type
 |
+| 
+| 
+| 
 |
 
 | C1_resol
 | item.properties.gsd
+| double
+| 
+| pos.resolution
 |
 
 | C2_resol
 | item.properties.gsd
+| double
+| 
+| pos.resolution
 |
 
 | C3_resol
+|
+|
+|
 |
 |
 |===
@@ -226,377 +370,650 @@
 
 === FeatureOfInterest
 
-[cols="2,2,3", options="header"]
+[cols="2,2,1,1,2,3", options="header"]
 |===
-|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> |Datatype |Arraysize |UCD | Notes
 
 | target_name
 | item.properties.ssys:targets[0]
-|
+| char
+| *
+| meta.id;src
+| ssys:targets is a list; see <<algo-first-of-list>>.
 
 | target_class
-| item.properties.target_class
-|
-
-| c1
+| item.properties.ssys:target_class
+| char
+| *
+| meta.code.class;src.class
 | 
-| centroid of item.geometry.coordinates
 
-| c2
+| c1min
+| min longitude of item.geometry.coordinates
+| double
 | 
-| centroid of item.geometry.coordinates
+| pos.bodyrc.lon;stat.min
+| See <<algo-geometry-minmax>> for the extraction algorithm.
 
-| c3
+| c1max
+| max longitude of item.geometry.coordinates
+| double
+| 
+| pos.bodyrc.lon;stat.max
+| See <<algo-geometry-minmax>>.
+
+| c2min
+| min latitude of item.geometry.coordinates
+| double
+| 
+| pos.bodyrc.lat;stat.min
+| See <<algo-geometry-minmax>>.
+
+| c2max
+| max latitude of item.geometry.coordinates
+| double
+| 
+| pos.bodyrc.lat;stat.max
+| See <<algo-geometry-minmax>>.
+
+| c3min
 |
+| 
+| 
+| 
+| Not implemented: no third coordinate axis in the STAC geometries seen so far.
+
+| c3max
 |
+| 
+| 
+| 
+| Not implemented: no third coordinate axis in the STAC geometries seen so far.
 
 | spatial_frame_type
 |
-| spatial_frame_type = body
+| char
+| *
+| pos.frame
+| spatial_frame_type = body (a fixed value, not read from STAC -- see <<algo-constant-column>>)
 
 | incidence
-| 90° − item.properties.view:sun_elevation
-|
+| item.properties.view:incidence_angle
+| double
+| 
+| pos.incidenceAng
+| 
 
 | emergence
-| item.properties.view:incidence_angle
-|
+| no STAC equivalent
+| 
+| 
+| 
+| 
 
 | phase
 | item.properties.view:phase_angle
+| double
+| 
+| pos.phaseAng
 |
 
 | s_region
 |
+| char
+| *
+| pos.outline;obs.field
 | convert item.geometry.coordinates
 
 | solar_longitude
 |
+| 
+| 
+| 
 |
 
 | target_distance
 |
+| 
+| 
+| 
 |
 
 | earth_distance
 |
+| 
+| 
+| 
 |
 
 | sun_distance
 | item.properties.pdssp:solar_distance
+| double
+| 
+| pos.distance;pos.heliocentric
 |
 
 | subsolar_longitude
 |
+| 
+| 
+| 
 |
 
 | subsolar_latitude
 |
+| 
+| 
+| 
 |
 
 | alt_target_name
 |
+| 
+| 
+| 
 |
 
 | feature_name
 |
+| 
+| 
+| 
 | Inverted name resolver on coordinates
 
 | target_region
-| 
-| lowercase(item.properties.ssys:targets[0]) - comes from https://www.ivoa.net/rdf/uat/2026-01-02/uat.html
+| item.properties.ssys:targets[0], lower-cased
+| char
+| *
+| meta.id;src;obs.field
+| Vocabulary: https://www.ivoa.net/rdf/uat/2026-01-02/uat.html[IVOA UAT]. See <<algo-lowercase-first-of-list>>.
 
 | coverage
-|
-| convert item.assets[name="moc-healpix"].url as string
+| item.assets[key contains "moc"/"healpix"].href
+| char
+| *
+| pos.outline;obs.field
+| See <<algo-moc-healpix-asset>>.
 
 
 | radial_distance
+| 
+| 
+| 
 | 
 | computes from pos(planetocentric) to (planeotgraphic)
 
 | altitude_fromshape
 |
+| 
+| 
+| 
 | computes from the DTM
 
 | mean_radius
 |
 | 
+| 
+| 
+| 
 
 | equatorial_radius
 |
+| 
+| 
+| 
 | 
 
 | polar_radius
 |
 | 
+| 
+| 
+| 
 
 | diameter
 |
+| 
+| 
+| 
 |
 
 | mass
 |
 | 
+| 
+| 
+| 
 
 | sideral_rotation_period
 |
+| 
+| 
+| 
 |
 
 | semi_major_axis
 |
+| 
+| 
+| 
 |
 
 | inclination
 |
+| 
+| 
+| 
 |
 
 | eccentricity
 |
+| 
+| 
+| 
 |
 
 | long_asc
 |
+| 
+| 
+| 
 |
 
 | arg_perihel
+| 
+| 
+| 
 | 
 |
 
 | mean_anomaly
 |
+| 
+| 
+| 
 |
 
 | epoch
 |
+| 
+| 
+| 
 |
 
 | magnitude
 |
+| 
+| 
+| 
 |
 
 | flux
 |
+| 
+| 
+| 
 |
 
 | albedo
 |
+| 
+| 
+| 
 |
 
 | dynamic_class
+| 
+| 
+| 
 | 
 |
 
 | dynamic_type
 |
+| 
+| 
+| 
 |
 
 | taxonomy_code
 |
+| 
+| 
+| 
 |
 
 | azimuth
 |
+| 
+| 
+| 
 |
 
 | north_pole_position
 |
+| 
+| 
+| 
 |
 
 | target_primary_hemisphere
 |
+| 
+| 
+| 
 |
 
 | target_secondary_hemisphere
 |
+| 
+| 
+| 
 |
 
 | target_apparent_radius
 |
+| 
+| 
+| 
 |
 
 | orientation
 |
+| 
+| 
+| 
 |
 
 | spatial_origin
 |
+| 
+| 
+| 
 | spatial_origin = Geocenter, item.properties.ssys:targets[0]
 
 | Spatial_coordinate_description
-|
-| IAU CRS name (see CRS Registry)
+| item.properties.proj:code
+| char
+| *
+| meta.code.class;pos.frame
+| IAU CRS name (see CRS Registry). Filled in 2026-08-30: this row's STAC mapping was previously blank even though it is implemented.
 
 |===
 
 === Result
 
-[cols="2,2,3", options="header"]
+[cols="2,2,1,1,2,3", options="header"]
 |===
-|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> |Datatype |Arraysize |UCD | Notes
 
 | access_url
 | item.assets[name][role=data].href
-|
+| char
+| *
+| meta.ref.url
+| See <<algo-primary-asset>>.
 
 | access_format
 | item.assets[name][role=data].type
-|
+| char
+| *
+| meta.code.mime
+| See <<algo-primary-asset>>.
 
 | access_estsize
+| item.assets[name][role=data].file:size
+| long
 |
-|
+| phys.size;meta.file
+| See <<algo-primary-asset>>. Filled in 2026-08-30: this row's STAC mapping was previously blank even though it is implemented.
 
 | thumbnail_url
 | item.assets[name][role=thumbnail].href
-|
+| char
+| *
+| meta.ref.url;meta.preview
+| See <<algo-role-asset>>.
 
 | file_name
 | item.assets[name][role=data].title
-|
+| char
+| *
+| meta.id;meta.file
+| See <<algo-primary-asset>>.
 
 | access_md5
 | item.assets[name].file:checksum
-|
+| char
+| *
+| meta.checksum;meta.file
+| See <<algo-primary-asset>>.
 
 
 | datalink_url
 |
+| 
+| 
+| 
 |
 
 | map_projection
+| 
+| 
+| 
 | 
 |
 
 | map_height
 | 
+| 
+| 
+| 
 |
 
 | map_width
+| 
+| 
+| 
 | 
 |
 
 | pixelscale
 | pdssp:map_resolution
+| double
+| 
+| instr.scale
 | 
 
 | map_scale
 | pdssp:map_scale
+| double
+| 
+| pos.wcs.scale
 | 
 
 | bib_reference
 | item.properties.sci:doi
+| char
+| *
+| meta.bib.doi
 |
 
 | publisher
 | collection.providers[role=host].name
-|
+| char
+| *
+| meta.curation
+| See <<algo-collection-path>>.
 
 | internal_reference
+|
+|
+|
 |
 |
 
 | external_link
 | item.assets[role=metadata].href
-|
+| char
+| *
+| meta.ref.url
+| See <<algo-role-asset>>.
 
 | service_title
-| 
 |
+| char
+| *
+| meta.title
+| Not derived from a STAC field: fixed per proxy deployment. EPN-TAP2 mandatory. See <<algo-constant-column>>.
 
 | creation_date
 | created
+| char
+| *
+| time.creation
 |
 
 | modification_date
 | updated
+| char
+| *
+| time.update
 |
 
 | release_date
 | published
+| char
+| *
+| time.release
 | timestamps extension
 
 |===
 
 === Observation
 
-[cols="2,2,3", options="header"]
+[cols="2,2,1,1,2,3", options="header"]
 |===
-|indexterm:[EPN-TAP]<<acr-epn-tap,EPN-TAP>>  |indexterm:[PDSSP]<<acr-pdssp,PDSSP>> indexterm:[STAC]<<acr-stac,STAC>> | Notes
+|indexterm:[EPN-TAP]<<acr-epn-tap,EPN-TAP>>  |indexterm:[PDSSP]<<acr-pdssp,PDSSP>> indexterm:[STAC]<<acr-stac,STAC>> |Datatype |Arraysize |UCD | Notes
 
-| time_min 
-| item.properties.start_datetime 
-| The time parameters in <<acr-epn-tap,EPN-TAP>> are always provided in UTC and formatted in Julian Days (expressed in double precision). EPNCore uses standard indexterm:[JD]<<acr-jd,JD>> to avoid ambiguity with time origin. start_datetime in <<acr-stac,STAC>> uses UTC time. If datetime is not null, time_min must be set to datetime 
+| time_min
+| item.properties.start_datetime
+| double
+|
+| time.start
+| The time parameters in <<acr-epn-tap,EPN-TAP>> are always provided in UTC and formatted in Julian Days (expressed in double precision). EPNCore uses standard indexterm:[JD]<<acr-jd,JD>> to avoid ambiguity with time origin. start_datetime in <<acr-stac,STAC>> uses UTC time. If datetime is not null, time_min must be set to datetime. Conversion: <<algo-jd-iso>>.
 
-| time_max 
-| item.properties.end_datetime 
-| The time parameters in <<acr-epn-tap,EPN-TAP>> are always provided in UTC and formatted in Julian Days (expressed in double precision). EPNCore uses standard <<acr-jd,JD>> to avoid ambiguity with time origin. start_datetime in <<acr-stac,STAC>> uses UTC time.
+| time_max
+| item.properties.end_datetime
+| double
+|
+| time.end
+| The time parameters in <<acr-epn-tap,EPN-TAP>> are always provided in UTC and formatted in Julian Days (expressed in double precision). EPNCore uses standard <<acr-jd,JD>> to avoid ambiguity with time origin. start_datetime in <<acr-stac,STAC>> uses UTC time. Conversion: <<algo-jd-iso>>.
 
 | time_exp_min 
 |
+| 
+| 
+| 
 | compute end_datetime-start_datetime, expressed as seconds
 
 | time_exp_max 
 |
+| 
+| 
+| 
 |
 
 | time_refposition
 | item.properties.ssys:targets
-| First element of ssys:targets
+| char
+| *
+| meta.id
+| See <<algo-first-of-list>>.
 
 | time_scale
 |
+| 
+| 
+| 
 | Set time_scale = UTC
 
 | local_time_min
 | item.properties.ssys:local_time
+| double
+| 
+| time.phase;time.period.rotation;stat.min
 | Must be converted
 
 | local_time_max
 |
+| 
+| 
+| 
 |
 
 | target_time_min
 | item.properties.start_datetime
+| char
+| *
+| time.start;src
 | UTC time expressed as TIMESTAMP
 
 | target_time_max
 | item.properties.end_datetime
+| char
+| *
+| time.end;src
 | UTC time expressed as TIMESTAMP
 
 | obs_id
 | item.id
+| char
+| *
+| meta.id
 |
 
 | granule_uid
 |
+| char
+| *
+| meta.id
 | Convert granule_uid = id#md5(asset.href)
 
 |===
 
 === ObservationType
 
-[cols="2,2,3", options="header"]
+[cols="2,2,1,1,2,3", options="header"]
 |===
-|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> |Datatype |Arraysize |UCD | Notes
 
 | dataproduct_type
 | item.properties.product:type
+| char
+| *
+| meta.code.class
 |
 
 | processing_level
 | item.properties.processing:level
+| char
+| *
+| meta.code
 | mapping with enums (<<acr-epn-tap,EPN-TAP>> uses an acronym where <<acr-pdssp,PDSSP>> uses the name)
 |===
 
 === ObservationCollection
 
-[cols="2,2,3", options="header"]
+[cols="2,2,1,1,2,3", options="header"]
 |===
-|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
+|<<acr-epn-tap,EPN-TAP>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> |Datatype |Arraysize |UCD | Notes
 
 | granule_gid
 | collection.id
+| char
+| *
+| meta.id;meta.dataset
 |
 
 |===
