@@ -1,5 +1,13 @@
 == Mapping NASA ODE to STAC
 
+NOTE: This section is generated from the actual mapping code in `ode-stac-proxy`
+(`ode_plugin/response/{item_mapper,properties_builder,asset_builder,link_builder,
+collection_mapper,stac_extensions,projection_resolver,taxonomy,utils}.py`). Any
+ODE field consumed nowhere in the mapper is still preserved: it is copied
+verbatim onto `item.properties` as `pdsode:<Field_name>` (see `PdsProxy.unused_fields()`
+in `pds_proxy.py`), so no science metadata is silently dropped even when a row
+below says "Not mapped" or is absent from this table.
+
 === Host
 
 [cols="2,2,3", options="header"]
@@ -8,7 +16,11 @@
 
 | ihid
 | item.properties.platform
-|
+| Resolved through `PLATFORM_TAXONOMY[ihid]` (populated at collection load time from `IHID`/`IHName`) as `"<IHName> (<IHID>)"`. Logs a warning and returns `"UNKNOWN"` when `ihid` is not in the taxonomy.
+
+| Data_Set_Id (of the parent collection)
+| item.properties.mission
+| Not an item-level ODE field: resolved via `mission_name(dataset_id)` against the parent collection's `pdsode:dataset_id`. Fallback order: `mission_name(dataset_id)` → `mission_name(extract_before_separator(dataset_id))` (text before the first `/`, `_data` or `-data`) → `"UNKNOWN"`. The `MISSION` taxonomy entry can itself be overridden per collection by the DOI/investigation lookup — see `sci:publications` in <<_observationcollection>>.
 
 |===
 
@@ -21,7 +33,7 @@
 
 | iid
 | items.properties.instruments
-|
+| Single-element list. Resolved through `INSTRUMENT_TAXONOMY[iid]` (populated at collection load time from `IID`/`IName`) as `"<IName> (<IID>)"`. Logs a warning and returns `"UNKNOWN"` when `iid` is not in the taxonomy.
 
 | ode_id
 | item.id
@@ -33,15 +45,15 @@
 
 | Stop_orbit_number
 | N/A
-|
+| Marked as consumed (without emitting a value) when it equals `Start_orbit_number`, so it does not appear as a redundant `pdsode:Stop_orbit_number` residual. When it differs from `Start_orbit_number` it is *not* consumed and does surface as `pdsode:Stop_orbit_number`.
 
 | SpaceCraft_clock_start_count
 | item.properties.pdsode:SpaceCraft_clock_start_count
-|
+| Not read by the mapper; passes through as an unconsumed-field residual.
 
 | SpaceCraft_clock_stop_count
 | item.properties.pdsode:SpaceCraft_clock_stop_count
-|
+| Not read by the mapper; passes through as an unconsumed-field residual.
 
 |===
 
@@ -53,11 +65,11 @@
 
 | Activity_id
 | item.properties.pdsode:Activity_id
-|
+| Not read by the mapper; passes through as an unconsumed-field residual.
 
 | Producer_id
-| item.properties.providers[0]name
-|
+| item.properties.providers[0].name
+| `item.properties.providers` is `[]` when `Producer_id` is null, otherwise a single `Provider(name=Producer_id)`.
 
 |===
 
@@ -73,11 +85,15 @@ N/A
 
 | Target_name
 | item.properties.ssys:targets[0]
-|
+| `"Phobos"` when `pt.upper() == "PHOBOS"`, otherwise `Target_name.capitalize()`.
+
+| Target_name / pt
+| item.properties.ssys:target_class
+| `"satellite"` when `Target_name.upper() == "MOON"` or `pt.upper() == "PHOBOS"`, else `"planet"`.
 
 | Description
 | item.properties.description
-|
+| Also used as a last-resort source for `item.properties.datetime` — see <<_observation>>.
 
 | Emission_angle / Emission_angle_text
 | item.properties.view:off_nadir
@@ -89,25 +105,25 @@ N/A
 
 | Phase_angle / Phase_angle_text
 | item.properties.view:phase_angle
-| Fallback order: Phase_angle → Phase_angle_text → None.
+| Fallback order: Phase_angle → float(Phase_angle_text) → None.
 
 | Solar_distance
 | item.properties.pdssp:solar_distance
-| Solar_distance_text is not mapped
+| Solar_distance_text is not mapped (no fallback logic in code) — passes through independently as `pdsode:Solar_distance_text` when present.
 
 | Solar_longitude
 | item.properties.pdssp:solar_longitude
-| Solar_longitude_text is not mapped
+| Solar_longitude_text is not mapped (no fallback logic in code) — passes through independently as `pdsode:Solar_longitude_text` when present.
 
 | Predicted_dust_opacity / Predicted_dust_opacity_text
-| item.properties.pdsode:Predicted_dust_opacity
-| 
+| item.properties.pdsode:Predicted_dust_opacity / pdsode:Predicted_dust_opacity_text
+| Neither field is read by the mapper. Unlike the angle fields above, there is *no* fallback logic between the numeric and `_text` variants in code — both pass through independently as separate `pdsode:*` residuals.
 
 | Easternmost_longitude / Easternmost_longitude_text / Westernmost_longitude / Westernmost_longitude_text / Maximimum_latitude / Maximimum_latitude_text / Minimum_latitude / Minimum_latitude_text
 | item.bbox
 |
 
-| Footprint_C0_geometry / Footprint_GL_geometry  
+| Footprint_C0_geometry / Footprint_GL_geometry
 | item.geometry
 | Fallback order: Footprint_C0_geometry → Footprint_GL_geometry → None  - Pole_state, Footprint_cross_meridian, Footprint_souce, Footprint_SP_geometry, Footprint_NP_geometry, Footprint_geometry, bbox
 
@@ -121,10 +137,14 @@ N/A
 
 | Center_longitude / Center_longitude_text
 | item.properties.proj:centroid.lon
-|
+| `Center_longitude` (range 0-360) is converted to the -180/180 convention (`center_longitude_180` computed field) before being written to `proj:centroid.lon`. `Center_longitude_text` is not mapped.
+
+| Target_name / iid / Data_Set_Id
+| item.properties.proj:code
+| Only added when both `Center_latitude` and `Center_longitude` are non-null. Resolved by `resolve_crs()`: instrument/dataset overrides checked first (`Target_name == "Mars" and iid == "HRSC"` → IAU:2015:49900; `Data_Set_Id == "MGS-M-MOLA-3-PEDR-L1A-V1.0"` → IAU:2015:49900), then the default CRS per `Target_name` (Mercury, Venus, Mars, Moon). The property is omitted entirely when the target body has no default CRS.
 
 | BB_georeferenced
-| 
+|
 | Not mapped
 |===
 
@@ -136,19 +156,19 @@ N/A
 
 | LabelFileName
 |
-| URL of the item {base}/LabelFilename or {base}/{relative_path}/LabelFilename
+| Not mapped to a STAC field directly. Used, together with `LabelURL` and `RelativePathtoVol`, to reconstruct `External_url` / `External_url2` / `External_url3` when the raw ODE value is not already an absolute `http(s)` URL — see below.
 
 | Product_Title
 | item.properties.title
-|
+| Falls back to `item.id` (pdsid) when `Product_title` is null.
 
 | Product_version_id
 | item.properties.version
 | TBC with vesion
 
 | Label_product_type
-| item.properties.product:type
-| Fallback order: Label_product_type → pt.
+| item.properties.pdsode:Label_product_type
+| Not read by the mapper; passes through as an unconsumed-field residual. `item.properties.product:type` is *not* derived from this field — it is inherited from the parent collection's classification, see <<_observationtype>>.
 
 | PDSVolume_Id
 | item.properties.pdsode:PDSVolume_Id
@@ -156,7 +176,7 @@ N/A
 
 | RelativePathtoVol
 | item.properties.pdsode:RelativePathtoVol
-|
+| Also consumed (without an explicit STAC field of its own) when reconstructing a relative `External_url*` — see `LabelFileName` above.
 
 | Product_name
 | item.properties.pdsode:product_name
@@ -164,19 +184,23 @@ N/A
 
 | label
 | item.properties.pdsode:label
-| 
+|
 
 | USGS_Sites
 | item.properties.pdsode:USGS_Sites
-| 
+|
+
+| Product_lid / Bundle_lid / Collection_lid
+| item.properties.pdsode:Product_lid / pdsode:Bundle_lid / pdsode:Collection_lid
+| PDS4-only identifiers, not read by the mapper; pass through as unconsumed-field residuals when present.
 
 | PDS4LabelURL
 | item.assets['pds4_label']
-| AssetRoles.metadata is used
+| `AssetRoles.metadata` is used. `type=MimeTypes.text`, title `"PDS4 label"`.
 
 | LabelURL
 | item.assets['label']
-| AssetRoles.metadata is used
+| `AssetRoles.metadata` is used. `type=MimeTypes.pds`, title `"PDS3 label"`.
 
 | FilesURL
 | items.links[rel="about"].href
@@ -188,19 +212,19 @@ N/A
 
 | External_url
 | items.links[rel="about"].href
-| title is "External reference" and type is html
+| title is "External reference" and type is html. When the raw value is not already an absolute `http(s)` URL, it is rebuilt as `{dirname(LabelURL)}/{RelativePathtoVol}/{LabelFileName}` (or without `RelativePathtoVol` when absent) by a model validator; stays `None` when `LabelURL` or `LabelFileName` is missing.
 
 | External_url2
 | items.links[rel="about"].href
-| title is "External reference" and type is html
+| title is "External reference" and type is html. Same relative-URL reconstruction rule as `External_url`.
 
 | External_url3
 | items.links[rel="about"].href
-| title is "External reference" and type is html
+| title is "External reference" and type is html. Same relative-URL reconstruction rule as `External_url`.
 
 | Product_files
-| TBC
-| Loop on product file  
+| item.assets[FileName]
+| Implemented in `AssetBuilder._file_assets()`: one `item.assets[FileName]` entry per `Product_files.Product_file[]` entry (see FileName/Type/KBytes/URL/Description/Creation_date rows below). An entry without a `URL` is skipped entirely.
 
 | browse
 |
@@ -211,36 +235,36 @@ N/A
 | Not USED - image in base64
 
 | Map_resolution
-| item.properties.pdsode:Map_resolution
-| 
+| item.properties.pdssp:map_resolution
+|
 
 | Map_resolution_text
-|
 | item.properties.pdsode:Map_resolution_text
+| Not read by the mapper; passes through as an unconsumed-field residual (no fallback to `Map_resolution`).
 
 | Map_scale
-| item.properties.pdsode:Map_scale
-| 
+| item.properties.pdssp:map_scale
+|
 
 | Map_scale_text
 | item.properties.pdsode:Map_scale_text
-| 
+| Not read by the mapper; passes through as an unconsumed-field residual (no fallback to `Map_scale`).
 
 | Comment
 | item.properties.pdsode:Comment
-| 
+|
 
 | ODE_notes
 | item.properties.pdsode:ODE_notes
-| 
+|
 
 | FileName
 | item.assets[Filename].title
-|
+| Also used as the asset dictionary key. Falls back to the literal `"file"` when absent.
 
 | Type
 | item.assets[Filename].type_image
-| Used to detect mime and roles in asset for Filename
+| Raw ODE type string, forwarded to `AssetDetector.detect()` to derive `type` (MIME) and `roles`. Priority order: `.IMG`/`.LBL` extension → `data`; ODE type `browse` (+ PNG/JPEG ⇒ `thumbnail` if ≤2000KB else `overview`; + TIFF/TIF ⇒ `overview`,`visual`); ODE type `product` → `data`; ODE type `derived` → `derived`; ODE type `document`/`label` or `.xml`/`.kml` → `metadata`; ODE type `archive` or `.zip`/`.tar.gz` → `metadata`; ODE type `calibration`/`ancillary` → `data`; otherwise a per-extension fallback table (`.png`, `.jpg/.jpeg`, `.tif/.tiff`, `.cub`, `.img`, `.pds`, `.fit`, `.kml`, `.csv`, `.txt`, `.xml`, `.pdf`, `.zip`, `.tar.gz`, `.jp2`).
 
 | KBytes
 | items.assets[Filename].file:size
@@ -256,7 +280,7 @@ N/A
 
 | Creation_date
 | items.asset[Filename].creation_date
-|
+| The earliest `Creation_date` across all `Product_file` entries is also used as a fallback source for `item.properties.datetime` — see <<_observation>>.
 |===
 
 === Observation
@@ -267,32 +291,47 @@ N/A
 
 | Observation_id
 | item.properties.pdsode:Observation_id
-| 
+|
 
 | Observation_number
 | item.properties.pdsode:Observation_number
-| 
+|
+
+| Observation_type
+| item.properties.pdsode:Observation_type
+| Not read by the mapper; passes through as an unconsumed-field residual. `item.properties.product:type` is *not* derived from this field — see <<_observationtype>>.
 
 | UTC_start_time
-| item.properties.datetime and item.properties.start_datetime 
-| Fallback order: Observation_time → UTC_start_time → Product_creation_time → Product_release_date →  earlest(Creation_date) in files
+| item.properties.datetime and item.properties.start_datetime
+| `start_datetime` is always `utc(UTC_start_time)` directly. Fallback order for `datetime`: Observation_time → UTC_start_time → Product_creation_time → Product_release_date → earliest(Creation_date) across Product_files → date parsed from Description (pattern `DD-Mon-YYYY HH:MM:SS.ff`) → None.
 
 | UTC_stop_time
 | item.properties.end_datetime
-|
+| Direct mapping only, no fallback chain.
 
 | Observation_time
-| item.properties.datetime and item.properties.start_datetime 
-| Fallback order: Observation_time → UTC_start_time → Product_creation_time → Product_release_date →  earlest(Creation_date) in files
-
+| item.properties.datetime
+| Fallback order: Observation_time → UTC_start_time → Product_creation_time → Product_release_date → earliest(Creation_date) across Product_files → date parsed from Description → None.
 
 | Product_creation_time
-| item.properties.datetime and item.properties.start_datetime and item.properties.created 
-| Fallback order for datetime : Observation_time → UTC_start_time → Product_creation_time → Product_release_date →  earlest(Creation_date) in files
+| item.properties.datetime and item.properties.created
+| `created` is always `utc(Product_creation_time)` directly (it does *not* feed `start_datetime`). Fallback order for `datetime`: Observation_time → UTC_start_time → Product_creation_time → Product_release_date → earliest(Creation_date) across Product_files → date parsed from Description → None.
 
 | Product_release_date
 | item.properties.datetime and item.properties.published
-| Fallback order for datetime : Observation_time → UTC_start_time → Product_creation_time → Product_release_date →  earlest(Creation_date) in files
+| `published` is always `utc(Product_release_date)` directly. Fallback order for `datetime` : Observation_time → UTC_start_time → Product_creation_time → Product_release_date → earliest(Creation_date) across Product_files → date parsed from Description → None.
+
+| Description
+| item.properties.datetime
+| Last-resort fallback (lowest priority) when none of the date fields above nor any `Product_files[].Creation_date` yield a value. Parsed via a `DD-Mon-YYYY HH:MM:SS.ff` regex (`extract_date_from_description()`); yields `None` when the pattern is not found.
+
+| Product_files[].Creation_date
+| item.properties.datetime
+| Second-to-last fallback: the earliest ISO-8601-parseable `Creation_date` across all `Product_files.Product_file[]` entries (`PropertiesBuilder._earliest_file_date()`). Entries with a missing or unparseable date are silently skipped.
+
+| N/A
+| item.properties.datetime / created / published
+| Any resolved datetime with year > 3000 is treated as invalid and coerced to `None` (`utc()` helper), rather than propagated as-is.
 |===
 
 === ObservationType
@@ -302,15 +341,27 @@ N/A
 |<<acr-ode,ODE>>  |<<acr-pdssp,PDSSP>> <<acr-stac,STAC>> | Notes
 
 | pt
-|
-| Used to classify item.properties.pdssp:processing_level and item.properties.pdssp:product_type 
+| item.properties.ssys:targets[0] / item.properties.ssys:target_class
+| `pt` is used at item level only for the Phobos special-case in `ssys:targets` / `ssys:target_class` — see <<_featureofinterest>>. It is *not* used to derive `product:type` or `processing:level`.
 
-| Observation_Type
+| N/A (inherited from the parent collection)
 | item.properties.product:type
-| Fallback order: Label_product_type → pt.
+| Looked up as `PRODUCT_TYPE[collection.id]` — a value computed once when the collection is built from `DataSetId`, `PTName`, and the instrument type / observing-system components fetched from the PDS4 dataset profile (see `product:type` row in <<_observationcollection>>). Item-level `pt`, `Label_product_type` and `Observation_type` play no role in this computation in the current implementation.
+
+| N/A (inherited from the parent collection)
+| item.properties.processing:level
+| Looked up as `PROCESSING_LEVEL[collection.id][0]` — a value computed once when the collection is built from the dataset profile's processing level, `PTName`, and `DataSetId` (see `processing:level` row in <<_observationcollection>>). Item-level `pt`, `Label_product_type` and `Observation_type` play no role in this computation in the current implementation.
 |===
 
 === ObservationCollection
+
+NOTE: Collection building also consults two external, secondary lookups keyed
+off `DataSetId` — not raw fields of the ODE `IIPTSet` response — via
+`explorer/pds_dsview_lookup.fetch()` (PDS4 dataset-view: DOI, citation,
+investigation/mission name) and `explorer/pds_profile.get_profile()` (PDS4
+dataset profile: processing level, observing-system components, instrument
+type). Rows below flag which values come from these enrichments rather than
+directly from ODE.
 
 [cols="2,2,3", options="header"]
 |===
@@ -333,110 +384,132 @@ N/A
 | value = instru:<<<acr-iid,IID>>> . Also used in collection.title and collection.description
 
 | IName
-| 
+|
 | used in part of collection.title and used in part of collection.description
 
 | indexterm:[PT]<<acr-pt,PT>>
-| collection.summaries.product_name.append()
-|
+| collection.summaries.product_name.append() and collection.keywords
+| value = type:<<<acr-pt,PT>>> in keywords; `collection.summaries['product_name'] = [PT]`.
 
 | PTName
-| collect.pds:product_name 
+| collection.pdsode:product_name
 | used in part of collection.title and used in part of collection.description
 
 | DataSetId
-| 
-| compute pdssp:product_type by classify f(DataSetId, pt)
+| collection.pdsode:dataset_id and collection.keywords
+| value = dataset:<DataSetId> in keywords (lowercased). Also the lookup key passed to the PDS4 dataset-view (`fetch()`) and dataset-profile (`get_profile()`) enrichments described above, which in turn feed `product:type`, `processing:level`, `mission` and `sci:publications` (see rows below).
 
 | ValidEmissionAngles
-| collection.keywords and collection.summaries['has_emission_angles'] = ["True", "False"]
+| collection.keywords and collection.summaries['has_emission_angles'] = [True|False]
 | with_emission is displayed in keywords if ValidEmissionAngles is True else without_emission
 
 | ValidPhaseAngles
-| collection.keywords and collection.summaries['with_phase'] = ["True", "False"]
+| collection.keywords and collection.summaries['has_phase_angles'] = [True|False]
 | with_phase is displayed in keywords if ValidPhaseAngles is True else without_phase
 
 | ValidIncidenceAngles
-| collection.keywords and collection.summaries['has_incidence_angles'] = ["True", "False"]
+| collection.keywords and collection.summaries['has_incidence_angles'] = [True|False]
 | with_incidence is displayed in keywords if ValidIncidenceAngles is True else without_incidence
 
 | ValidSolLongs
-| collection.keywords and collection.summaries['has_solar_longitudes'] = ["True", "False"]
+| collection.keywords and collection.summaries['has_solar_longitudes'] = [True|False]
 | with_ls is displayed in keywords if ValidSolLongs is True else without_ls
 
 | ValidFootprints
-| collection.keywords and collection.summaries['has_footprints'] = ["True", "False"]
+| collection.keywords and collection.summaries['has_footprints'] = [True|False]
 | with_footprint is displayed in keywords if ValidFootprints is True else without_footprint
 
 | ValidObservationTimes
-| collection.summaries['has_observation_times'] = ["True", "False"]
-|
+| collection.keywords and collection.summaries['has_observation_times'] = [True|False]
+| with_obstime is displayed in keywords if ValidObservationTimes is True else without_obstime
 
 | ValidTargets
 | collection.target
-|
+| Read from the nested `ValidTargets.ValidTarget` field of the ODE response.
 
 | NumberProducts
-| collection.pds:number_of_products"
+| collection.pdsode:number_of_products
 |
 
 | MinOrbit
-| collection.summaries["orbits"][0]
-|
+| collection.summaries["orbits"]["minimum"]
+| `collection.summaries["orbits"]` is only set when *both* MinOrbit and MaxOrbit are truthy (e.g. omitted entirely when MinOrbit is `0`).
 
 | MaxOrbit
-| collection.summaries["orbits"][1]
-|
+| collection.summaries["orbits"]["maximum"]
+| Same condition as MinOrbit above.
 
 | MinObservationTime
-| collection.summaries["observationTime"][0]
-|
+| collection.summaries["observationTime"]["minimum"]
+| Also used, together with MaxObservationTime, to build `collection.extent.temporal.interval`. Only set in `summaries` when both bounds are truthy.
 
 | MaxObservationTime
-| collection.summaries["observationTime"][1]
-|
+| collection.summaries["observationTime"]["maximum"]
+| Same condition as MinObservationTime above.
 
 | MinProductId
-| collection.summaries["productId"][0]
-|
+| collection.summaries["productId"]["minimum"]
+| Only set when both bounds are truthy.
 
 | MaxProductId
-| collection.summaries["productId"][1]
-|
+| collection.summaries["productId"]["maximum"]
+| Only set when both bounds are truthy.
 
 | NumberObservations
-| collection.pds:number_of_observations
+| collection.pdsode:number_of_observations
 |
 
 | SpecialValue1
-| collection.pds:specialValue1
+| collection.pdsode:specialValue1
 |
 
 | MinSpecialValue1
-| collection.summaries["specialValue1"][0]
-|
+| collection.summaries["specialValue1"]["minimum"]
+| Only set when both MinSpecialValue1 and MaxSpecialValue1 are truthy.
 
 | MaxSpecialValue1
-| collection.summaries["specialValue1"][1]
-|
+| collection.summaries["specialValue1"]["maximum"]
+| Same condition as MinSpecialValue1 above.
 
 | SpecialValue2
-| collection.pds:specialValue2
+| collection.pdsode:specialValue2
 |
 
 | MinSpecialValue2
-| collection.summaries["specialValue2"][0]
-|
+| collection.summaries["specialValue2"]["minimum"]
+| Only set when both MinSpecialValue2 and MaxSpecialValue2 are truthy.
 
 | MaxSpecialValue2
-| collection.summaries["specialValue2"][1]
-|
+| collection.summaries["specialValue2"]["maximum"]
+| Same condition as MinSpecialValue2 above.
 
-|
+| N/A (external: PDS4 dataset-view lookup keyed by DataSetId)
+| collection.summaries['sci:publications']
+| Set to `[{"doi": doi_name, "citation": citation}]` only when the dataset-view lookup returns a non-empty `doi_name`. When the lookup's `investigation.name` is known (≠ "UNKNOWN"), it also overrides `collection.summaries['mission']` (and the `MISSION` taxonomy entry used for `item.properties.mission`, see <<_host>>) in place of `IHName`.
+
+| N/A (inherited by items)
 | product:type
-| Compute product:type based on several metadata
+| `collection.summaries['product:type']` — computed once via `extract_data_product_type(instrument_type, observing_system, dataset_id, title)` (keyword rules tried in order: product-type name → observing-system text → instrument type → dataset id), defaulting to `"UNKNOWN"`. `instrument_type` and `observing_system` come from the PDS4 dataset-profile enrichment (`get_profile()`); on lookup failure both default to empty. Cached as `PRODUCT_TYPE[collection.id]` and reused for every item's `item.properties.product:type` (see <<_observationtype>>).
 
-|
+| N/A (inherited by items)
 | processing:level
-| Compute processing:level based on several metadata
+| `collection.summaries['processing:level']` — computed once via `extract_processing_level(processing_level, dataset_id, pt_name)`: direct value from the PDS4 dataset-profile enrichment when available, else keyword rules on `PTName` then `DataSetId` (simple, multi-level, then exact-match rule tables), defaulting to `["UNKOWN"]` (sic) when nothing matches. Cached as `PROCESSING_LEVEL[collection.id]` and reused for every item's `item.properties.processing:level` (see <<_observationtype>>).
 |===
+
+=== STAC extensions
+
+`item.stac_extensions` is derived purely from which properties/assets ended up
+populated (`response/stac_extensions.py`), not from a dedicated ODE field:
+
+* Always declared: `ssys` and the PDSSP schema (`pdssp_schema`).
+* Declared when at least one property (on the item or on any asset) has a key
+  starting with the given prefix: `product` → `product` extension,
+  `sat` → `sat` extension, `view` → `view` extension, `file` → `file`
+  extension, `proj` → `projection` extension, `processing` → `processing`
+  extension.
+* Declared when the exact key is present on the item properties: `version` →
+  `version` extension, `published` → `timestamps` extension.
+
+`collection.stac_extensions` is a fixed list set at collection-build time
+(`ssys`, `scientific`, `processing`, `product`), independent of which fields
+are actually populated for a given collection.
