@@ -1,0 +1,68 @@
+name: Build & publish documentation
+
+# Lives at dm_doc/.github/workflows/publish.yml in the GitLab source repo,
+# but ends up at .github/workflows/publish.yml — the repo root — once
+# scripts/sync-dm-doc-github.sh (git subtree split --prefix=dm_doc) mirrors
+# dm_doc/ to https://github.com/pdssp/pdssp_data_model. GitHub Actions picks
+# it up automatically from there; no separate setup needed on the GitHub
+# side beyond enabling Pages once (see the deploy job below).
+#
+# Builds the PDF + single-page HTML (see ../../Makefile at the repo root,
+# i.e. dm_doc/Makefile here) and publishes the HTML as GitHub Pages, with
+# the PDF alongside it for download. Diagrams are rendered via the public
+# kroki.io service — unlike this repo's own GitLab CI, GitHub-hosted
+# runners reach the internet directly, no corporate proxy/CA to trust.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one Pages deployment at a time; never cancel one that's already
+# rolling out mid-deploy.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true # runs `bundle install`, cached on Gemfile.lock
+
+      - name: Build PDF + HTML
+        run: make pdf html
+
+      - name: Assemble Pages site
+        run: |
+          mkdir -p _site
+          cp pdssp-data-model.html _site/index.html
+          cp pdssp-data-model.pdf _site/
+          [ -d images ] && cp -r images _site/ || true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # TODO: on first run, enable Settings > Pages > Build and deployment >
+      # Source: "GitHub Actions" on github.com/pdssp/pdssp_data_model —
+      # otherwise this step has nowhere to deploy to yet.
+      - uses: actions/deploy-pages@v4
+        id: deployment
