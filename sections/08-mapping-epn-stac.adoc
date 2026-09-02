@@ -4,7 +4,7 @@
 
 [cols="2,2,1,1,2,3", options="header"]
 |===
-|indexterm:[ODE]<<acr-ode,ODE>>  |indexterm:[PDSSP]<<acr-pdssp,PDSSP>> indexterm:[STAC]<<acr-stac,STAC>> |Datatype |Arraysize |UCD | Notes
+|indexterm:[EPN-TAP]<<acr-epn-tap,EPN-TAP>>  |indexterm:[PDSSP]<<acr-pdssp,PDSSP>> indexterm:[STAC]<<acr-stac,STAC>> |Datatype |Arraysize |UCD | Notes
 
 | instrument_host_name
 | item.properties.platform
